@@ -32,7 +32,7 @@ function initializeChart() {
     glucoseChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: [], // Data
+            labels: [], // Data i Czas
             datasets: [{
                 label: 'Poziom glukozy (mg/dL)',
                 data: [], // Glukoza
@@ -83,9 +83,10 @@ function initializeChart() {
 // Funkcja ładowania zapisanych wyników z LocalStorage i Firebase
 async function loadResults() {
     // Ładowanie z LocalStorage
-    const savedResults = JSON.parse(localStorage.getItem('glucoseResults')) || [];
+    const encryptedData = localStorage.getItem('glucoseResults');
+    const savedResults = encryptedData ? decryptData(encryptedData) : [];
     savedResults.forEach(result => addResultToTable(result.date, result.time, result.glucose, result.timing, result.notes));
-    
+
     // Ładowanie z Firebase
     const querySnapshot = await db.collection("glucoseResults").get();
     querySnapshot.forEach((doc) => {
@@ -145,12 +146,33 @@ function checkGlucoseValidity(glucose, timing) {
     return { isValid, message };
 }
 
+// Szyfrowanie i deszyfrowanie danych
+const SECRET_KEY = "YOUR_SECRET_KEY"; // Wybierz silny klucz szyfrowania
+
+// Funkcja szyfrująca dane
+function encryptData(data) {
+    return CryptoJS.AES.encrypt(JSON.stringify(data), SECRET_KEY).toString();
+}
+
+// Funkcja deszyfrująca dane
+function decryptData(ciphertext) {
+    try {
+        const bytes = CryptoJS.AES.decrypt(ciphertext, SECRET_KEY);
+        const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
+        return JSON.parse(decryptedData);
+    } catch (e) {
+        console.error("Błąd deszyfrowania danych:", e);
+        return [];
+    }
+}
+
 // Funkcja zapisywania wyniku w LocalStorage i Firebase
 function saveResult(date, time, glucose, timing, notes) {
-    const savedResults = JSON.parse(localStorage.getItem('glucoseResults')) || [];
+    const savedResults = JSON.parse(decryptData(localStorage.getItem('glucoseResults'))) || [];
     const newResult = { date, time, glucose, timing, notes };
     savedResults.push(newResult);
-    localStorage.setItem('glucoseResults', JSON.stringify(savedResults));
+    const encryptedData = encryptData(savedResults);
+    localStorage.setItem('glucoseResults', encryptedData);
 
     // Zapis do Firebase
     db.collection("glucoseResults").add(newResult)
@@ -172,9 +194,10 @@ function deleteResult(button) {
     const notes = row.children[4].textContent;
 
     // Usuwanie z LocalStorage
-    let savedResults = JSON.parse(localStorage.getItem('glucoseResults')) || [];
+    let savedResults = JSON.parse(decryptData(localStorage.getItem('glucoseResults'))) || [];
     savedResults = savedResults.filter(result => !(result.date === date && result.time === time && result.glucose == glucose && result.timing === timing && result.notes === notes));
-    localStorage.setItem('glucoseResults', JSON.stringify(savedResults));
+    const encryptedData = encryptData(savedResults);
+    localStorage.setItem('glucoseResults', encryptedData);
 
     // Usuwanie z Firebase
     db.collection("glucoseResults").where("date", "==", date)
@@ -217,7 +240,7 @@ function printResults() {
 
 // Funkcja eksportująca dane do CSV
 function exportToCSV() {
-    const savedResults = JSON.parse(localStorage.getItem('glucoseResults')) || [];
+    const savedResults = JSON.parse(decryptData(localStorage.getItem('glucoseResults'))) || [];
     if (savedResults.length === 0) {
         alert('Brak danych do eksportu.');
         return;
@@ -225,7 +248,9 @@ function exportToCSV() {
 
     let csvContent = "data:text/csv;charset=utf-8,Data,Czas,Glukoza (mg/dL),Moment,Notatki\n";
     savedResults.forEach(result => {
-        csvContent += `${result.date},${result.time},${result.glucose},${result.timing},${result.notes}\n`;
+        // Użycie cudzysłowów dla pól zawierających przecinki
+        const data = `"${result.date}","${result.time}","${result.glucose}","${result.timing}","${result.notes.replace(/"/g, '""')}"`;
+        csvContent += `${data}\n`;
     });
 
     const encodedUri = encodeURI(csvContent);
@@ -237,9 +262,9 @@ function exportToCSV() {
     document.body.removeChild(link);
 }
 
-// Funkcja eksportująca dane do Firebase (jeśli jeszcze nie zostały zsynchronizowane)
+// Funkcja eksportująca dane do Firebase
 function exportToFirebase() {
-    const savedResults = JSON.parse(localStorage.getItem('glucoseResults')) || [];
+    const savedResults = JSON.parse(decryptData(localStorage.getItem('glucoseResults'))) || [];
     savedResults.forEach(result => {
         db.collection("glucoseResults").add(result)
             .then(() => {
@@ -253,7 +278,7 @@ function exportToFirebase() {
 
 // Funkcja aktualizująca wykres
 function updateChart() {
-    const savedResults = JSON.parse(localStorage.getItem('glucoseResults')) || [];
+    const savedResults = JSON.parse(decryptData(localStorage.getItem('glucoseResults'))) || [];
     // Sortowanie wyników według daty i czasu
     savedResults.sort((a, b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`));
 
@@ -325,6 +350,9 @@ function setupEventListeners() {
 
     // Obsługa przełącznika trybu ciemnego
     document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+
+    // Obsługa przycisku eksportu do Firebase
+    document.getElementById('export-firebase').addEventListener('click', exportToFirebase);
 }
 
 // Funkcje walidacji formularza
@@ -357,6 +385,7 @@ window.onload = function() {
     initializeChart();
     loadResults();
     setupEventListeners();
+    loadSettings();
     requestNotificationPermission();
 };
 
@@ -369,11 +398,17 @@ function toggleTheme() {
     } else {
         themeToggle.textContent = '🌙';
     }
+
+    // Zapis ustawień w LocalStorage
+    const isDarkMode = document.documentElement.classList.contains('dark-mode');
+    const settings = JSON.parse(localStorage.getItem('userSettings')) || {};
+    settings.darkMode = isDarkMode;
+    localStorage.setItem('userSettings', JSON.stringify(settings));
 }
 
 // Funkcja eksportująca dane do CSV
 function exportToCSV() {
-    const savedResults = JSON.parse(localStorage.getItem('glucoseResults')) || [];
+    const savedResults = JSON.parse(decryptData(localStorage.getItem('glucoseResults'))) || [];
     if (savedResults.length === 0) {
         alert('Brak danych do eksportu.');
         return;
@@ -381,7 +416,9 @@ function exportToCSV() {
 
     let csvContent = "data:text/csv;charset=utf-8,Data,Czas,Glukoza (mg/dL),Moment,Notatki\n";
     savedResults.forEach(result => {
-        csvContent += `${result.date},${result.time},${result.glucose},${result.timing},${result.notes}\n`;
+        // Użycie cudzysłowów dla pól zawierających przecinki
+        const data = `"${result.date}","${result.time}","${result.glucose}","${result.timing}","${result.notes.replace(/"/g, '""')}"`;
+        csvContent += `${data}\n`;
     });
 
     const encodedUri = encodeURI(csvContent);
@@ -395,7 +432,7 @@ function exportToCSV() {
 
 // Funkcja eksportująca dane do Firebase
 function exportToFirebase() {
-    const savedResults = JSON.parse(localStorage.getItem('glucoseResults')) || [];
+    const savedResults = JSON.parse(decryptData(localStorage.getItem('glucoseResults'))) || [];
     savedResults.forEach(result => {
         db.collection("glucoseResults").add(result)
             .then(() => {
@@ -410,16 +447,31 @@ function exportToFirebase() {
 // Funkcja żądania pozwolenia na powiadomienia
 function requestNotificationPermission() {
     if (!('Notification' in window)) {
-        console.log('This browser does not support notifications.');
+        console.log('Ta przeglądarka nie obsługuje powiadomień.');
         return;
     }
 
     Notification.requestPermission().then(function(permission) {
         if (permission === "granted") {
             console.log("Powiadomienia zostały przyznane.");
+            getToken();
         } else {
             console.log("Powiadomienia zostały odrzucone.");
         }
+    });
+}
+
+// Funkcja uzyskiwania tokenu dla powiadomień
+function getToken() {
+    messaging.getToken({ vapidKey: 'YOUR_PUBLIC_VAPID_KEY' }).then((currentToken) => {
+        if (currentToken) {
+            console.log('Token FCM:', currentToken);
+            // Możesz wysłać ten token do swojego backendu lub zapisać go w Firebase
+        } else {
+            console.log('Brak dostępnego tokenu. Zadbaj o poprawną konfigurację FCM.');
+        }
+    }).catch((err) => {
+        console.error('Błąd przy pobieraniu tokenu FCM:', err);
     });
 }
 
@@ -434,94 +486,7 @@ messaging.onMessage((payload) => {
 
     new Notification(notificationTitle, notificationOptions);
 });
-const SECRET_KEY = "MARCIN1991elk!"; // Wybierz silny klucz szyfrowania
 
-// Funkcja szyfrująca dane
-function encryptData(data) {
-    return CryptoJS.AES.encrypt(JSON.stringify(data), SECRET_KEY).toString();
-}
-
-// Funkcja deszyfrująca dane
-function decryptData(ciphertext) {
-    const bytes = CryptoJS.AES.decrypt(ciphertext, SECRET_KEY);
-    const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
-    return JSON.parse(decryptedData);
-}
-
-// Aktualizacja funkcji zapisywania i ładowania wyników z LocalStorage
-function saveResult(date, time, glucose, timing, notes) {
-    const savedResults = JSON.parse(decryptData(localStorage.getItem('glucoseResults'))) || [];
-    const newResult = { date, time, glucose, timing, notes };
-    savedResults.push(newResult);
-    const encryptedData = encryptData(savedResults);
-    localStorage.setItem('glucoseResults', encryptedData);
-
-    // Zapis do Firebase
-    db.collection("glucoseResults").add(newResult)
-        .then(() => {
-            console.log("Wynik zapisany w Firebase");
-        })
-        .catch((error) => {
-            console.error("Błąd przy zapisywaniu wyniku w Firebase: ", error);
-        });
-}
-
-function loadResults() {
-    // Ładowanie z LocalStorage
-    const encryptedData = localStorage.getItem('glucoseResults');
-    const savedResults = encryptedData ? decryptData(encryptedData) : [];
-    savedResults.forEach(result => addResultToTable(result.date, result.time, result.glucose, result.timing, result.notes));
-    
-    // Ładowanie z Firebase
-    db.collection("glucoseResults").get().then((querySnapshot) => {
-        querySnapshot.forEach((doc) => {
-            const result = doc.data();
-            addResultToTable(result.date, result.time, result.glucose, result.timing, result.notes);
-        });
-        updateChart();
-    }).catch((error) => {
-        console.error("Błąd przy ładowaniu danych z Firebase: ", error);
-    });
-}
-
-function deleteResult(button) {
-    const row = button.parentNode.parentNode;
-    const date = row.children[0].textContent;
-    const time = row.children[1].textContent;
-    const glucose = row.children[2].textContent.replace(' mg/dL', '');
-    const timing = row.children[3].textContent;
-    const notes = row.children[4].textContent;
-
-    // Usuwanie z LocalStorage
-    let savedResults = JSON.parse(decryptData(localStorage.getItem('glucoseResults'))) || [];
-    savedResults = savedResults.filter(result => !(result.date === date && result.time === time && result.glucose == glucose && result.timing === timing && result.notes === notes));
-    const encryptedData = encryptData(savedResults);
-    localStorage.setItem('glucoseResults', encryptedData);
-
-    // Usuwanie z Firebase
-    db.collection("glucoseResults").where("date", "==", date)
-        .where("time", "==", time)
-        .where("glucose", "==", parseFloat(glucose))
-        .where("timing", "==", timing)
-        .where("notes", "==", notes)
-        .get()
-        .then((querySnapshot) => {
-            querySnapshot.forEach((doc) => {
-                doc.ref.delete().then(() => {
-                    console.log("Dokument usunięty z Firebase");
-                }).catch((error) => {
-                    console.error("Błąd przy usuwaniu dokumentu z Firebase: ", error);
-                });
-            });
-        })
-        .catch((error) => {
-            console.error("Błąd przy zapytaniu do Firebase: ", error);
-        });
-
-    // Usuwanie wiersza z tabeli
-    row.remove();
-    updateChart();
-}
 // Funkcja zastosowania ustawień personalizacji
 function applySettings() {
     const fontSelect = document.getElementById('font-select').value;
@@ -535,10 +500,9 @@ function applySettings() {
     document.documentElement.style.setProperty('--secondary-color', shadeColor(colorPicker, -20));
 
     // Zapis ustawień w LocalStorage
-    const settings = {
-        font: fontSelect,
-        color: colorPicker
-    };
+    const settings = JSON.parse(localStorage.getItem('userSettings')) || {};
+    settings.font = fontSelect;
+    settings.color = colorPicker;
     localStorage.setItem('userSettings', JSON.stringify(settings));
 }
 
@@ -547,15 +511,28 @@ function loadSettings() {
     const settings = JSON.parse(localStorage.getItem('userSettings'));
     if (settings) {
         // Zastosowanie czcionki
-        document.body.style.fontFamily = settings.font;
+        document.body.style.fontFamily = settings.font || var(--font-family);
 
         // Zastosowanie koloru motywu
-        document.documentElement.style.setProperty('--primary-color', settings.color);
-        document.documentElement.style.setProperty('--secondary-color', shadeColor(settings.color, -20));
+        if (settings.color) {
+            document.documentElement.style.setProperty('--primary-color', settings.color);
+            document.documentElement.style.setProperty('--secondary-color', shadeColor(settings.color, -20));
+            document.getElementById('color-picker').value = settings.color;
+        }
 
-        // Aktualizacja wartości w formularzu
-        document.getElementById('font-select').value = settings.font;
-        document.getElementById('color-picker').value = settings.color;
+        // Zastosowanie trybu ciemnego
+        if (settings.darkMode) {
+            document.documentElement.classList.add('dark-mode');
+            document.getElementById('theme-toggle').textContent = '☀️';
+        } else {
+            document.documentElement.classList.remove('dark-mode');
+            document.getElementById('theme-toggle').textContent = '🌙';
+        }
+
+        // Zastosowanie czcionki w formularzu
+        if (settings.font) {
+            document.getElementById('font-select').value = settings.font;
+        }
     }
 }
 
@@ -579,12 +556,3 @@ function shadeColor(color, percent) {
 
     return "#"+RR+GG+BB;
 }
-
-// Aktualizacja funkcji inicjującej aplikację
-window.onload = function() {
-    initializeChart();
-    loadResults();
-    setupEventListeners();
-    loadSettings();
-    requestNotificationPermission();
-};

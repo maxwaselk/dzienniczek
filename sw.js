@@ -9,7 +9,8 @@ const urlsToCache = [
     '/icons/icon-192x192.png',
     '/icons/icon-512x512.png',
     'https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap',
-    'https://cdn.jsdelivr.net/npm/chart.js'
+    'https://cdn.jsdelivr.net/npm/chart.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js'
 ];
 
 self.addEventListener('install', function(event) {
