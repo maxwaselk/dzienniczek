@@ -212,3 +212,9 @@ header h1::after {
         margin-top: 10px;
     }
 }
+/* Animacja fade-out */
+.fade-out {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s, transform 0.3s;
+}
