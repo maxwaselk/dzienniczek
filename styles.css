@@ -313,3 +313,21 @@ header h1::after {
         margin-top: 10px;
     }
 }
+/* Animacja fade-out dla usuwania */
+.fade-out {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s, transform 0.3s;
+}
+
+/* Stylizacja modalu */
+.modal-content {
+    /* Style już dodane w głównym CSS */
+}
+
+/* Animacja dla fade-out */
+.list-section li.fade-out {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s, transform 0.3s;
+}
