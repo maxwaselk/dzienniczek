@@ -16,7 +16,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Funkcja dodająca spotkanie do listy w UI
     function addMeetingToList(meeting) {
         const li = document.createElement('li');
-        li.textContent = meeting;
+        const detailsDiv = document.createElement('div');
+        detailsDiv.innerHTML = `
+            <span>Imię i Nazwisko: </span>${meeting.name}<br>
+            <span>Data: </span>${meeting.date}<br>
+            <span>Godzina: </span>${meeting.time}<br>
+            <span>Cel Spotkania: </span>${meeting.purpose}
+        `;
 
         // Tworzenie przycisku usuwania
         const deleteBtn = document.createElement('button');
@@ -26,6 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
             removeMeeting(meeting);
         });
 
+        li.appendChild(detailsDiv);
         li.appendChild(deleteBtn);
         meetingList.appendChild(li);
     }
@@ -33,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Funkcja usuwająca spotkanie z LocalStorage
     function removeMeeting(meeting) {
         let meetings = JSON.parse(localStorage.getItem('meetings')) || [];
-        meetings = meetings.filter(m => m !== meeting);
+        meetings = meetings.filter(m => m.name !== meeting.name || m.date !== meeting.date || m.time !== meeting.time || m.purpose !== meeting.purpose);
         saveMeetings(meetings);
     }
 
@@ -41,15 +48,20 @@ document.addEventListener('DOMContentLoaded', function() {
     meetingForm.addEventListener('submit', function(e) {
         e.preventDefault();
 
-        const meetingInput = document.getElementById('meeting');
-        const meeting = meetingInput.value;
+        const name = document.getElementById('name').value;
+        const date = document.getElementById('date').value;
+        const time = document.getElementById('time').value;
+        const purpose = document.getElementById('purpose').value;
 
-        if (meeting) {
+        if (name && date && time && purpose) {
+            const meeting = { name, date, time, purpose };
             addMeetingToList(meeting);
             let meetings = JSON.parse(localStorage.getItem('meetings')) || [];
             meetings.push(meeting);
             saveMeetings(meetings);
-            meetingInput.value = '';
+
+            // Resetowanie formularza
+            meetingForm.reset();
         }
     });
 
