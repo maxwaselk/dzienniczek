@@ -5,7 +5,7 @@
     --danger-color: #e94e77;
     --background-color: #f0f2f5;
     --text-color: #333;
-    --light-bg: #fff;
+    --light-bg: #ffffff;
     --dark-bg: #1e1e1e;
     --border-radius: 8px;
     --transition-speed: 0.3s;
@@ -41,21 +41,21 @@ body {
 
 .container {
     background-color: var(--light-bg);
-    padding: 30px;
+    padding: 40px;
     border-radius: var(--border-radius);
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 600px;
+    max-width: 700px;
     animation: fadeIn 0.5s ease-in-out;
 }
 
 header {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
 }
 
 header h1 {
-    font-size: 2rem;
+    font-size: 2.5rem;
     color: var(--primary-color);
     position: relative;
     display: inline-block;
@@ -63,12 +63,12 @@ header h1 {
 
 header h1::after {
     content: '';
-    width: 50px;
+    width: 60px;
     height: 4px;
     background-color: var(--secondary-color);
     position: absolute;
     left: 50%;
-    bottom: -10px;
+    bottom: -15px;
     transform: translateX(-50%);
     border-radius: 2px;
 }
@@ -78,19 +78,14 @@ header h1::after {
 }
 
 .form-group {
-    margin-bottom: 15px;
+    position: relative;
+    margin-bottom: 25px;
     display: flex;
     flex-direction: column;
 }
 
-.form-group label {
-    margin-bottom: 5px;
-    color: var(--text-color);
-    font-weight: 500;
-}
-
 .form-group input {
-    padding: 10px 15px;
+    padding: 12px 15px;
     border: 1px solid #ccc;
     border-radius: var(--border-radius);
     font-size: 1rem;
@@ -103,6 +98,33 @@ header h1::after {
     border-color: var(--primary-color);
     outline: none;
     box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+}
+
+.form-group label {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    transform: translateY(-50%);
+    background-color: var(--light-bg);
+    padding: 0 5px;
+    color: #999;
+    font-size: 1rem;
+    transition: all 0.3s;
+    pointer-events: none;
+}
+
+@media (prefers-color-scheme: dark) {
+    .form-group label {
+        background-color: var(--dark-bg);
+    }
+}
+
+.form-group input:focus + label,
+.form-group input:not(:placeholder-shown) + label {
+    top: -10px;
+    left: 10px;
+    font-size: 0.85rem;
+    color: var(--primary-color);
 }
 
 .btn {
@@ -135,7 +157,7 @@ header h1::after {
 
 .list-section ul {
     list-style: none;
-    max-height: 400px;
+    max-height: 500px;
     overflow-y: auto;
     padding-right: 10px;
 }
@@ -143,9 +165,9 @@ header h1::after {
 .list-section li {
     background-color: var(--secondary-color);
     color: #fff;
-    padding: 15px;
+    padding: 20px;
     border-radius: var(--border-radius);
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
@@ -154,6 +176,7 @@ header h1::after {
     transform: translateY(20px);
     animation: slideIn 0.5s forwards;
     position: relative;
+    transition: background-color var(--transition-speed);
 }
 
 .list-section li:nth-child(even) {
@@ -165,8 +188,8 @@ header h1::after {
 }
 
 .list-section li div p {
-    margin-bottom: 5px;
-    line-height: 1.4;
+    margin-bottom: 8px;
+    line-height: 1.5;
 }
 
 .list-section li div p span {
@@ -227,14 +250,15 @@ header h1::after {
 
 .modal-content {
     background-color: var(--light-bg);
-    margin: 10% auto; /* 10% from the top and centered */
-    padding: 20px;
+    margin: 5% auto; /* 5% from the top and centered */
+    padding: 30px;
     border: 1px solid #888;
     width: 90%;
     max-width: 500px;
     border-radius: var(--border-radius);
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     animation: slideInModal 0.3s ease-in-out;
+    position: relative;
 }
 
 @keyframes slideInModal {
@@ -244,7 +268,9 @@ header h1::after {
 
 .close-btn {
     color: #aaa;
-    float: right;
+    position: absolute;
+    top: 15px;
+    right: 20px;
     font-size: 28px;
     font-weight: bold;
     cursor: pointer;
@@ -258,8 +284,9 @@ header h1::after {
 }
 
 .modal-content h2 {
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     color: var(--primary-color);
+    text-align: center;
 }
 
 .modal-content .form-group input {
@@ -284,13 +311,14 @@ header h1::after {
     border-radius: 3px;
 }
 
-@media (max-width: 600px) {
+/* Responsywność */
+@media (max-width: 768px) {
     .container {
-        padding: 20px;
+        padding: 30px;
     }
 
     header h1 {
-        font-size: 1.5rem;
+        font-size: 2rem;
     }
 
     .btn {
@@ -307,27 +335,27 @@ header h1::after {
         gap: 5px;
         margin-top: 10px;
     }
+}
 
-    .delete-btn {
-        align-self: flex-end;
-        margin-top: 10px;
+@media (max-width: 480px) {
+    .container {
+        padding: 20px;
     }
-}
-/* Animacja fade-out dla usuwania */
-.fade-out {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.3s, transform 0.3s;
-}
 
-/* Stylizacja modalu */
-.modal-content {
-    /* Style już dodane w głównym CSS */
-}
+    header h1 {
+        font-size: 1.75rem;
+    }
 
-/* Animacja dla fade-out */
-.list-section li.fade-out {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.3s, transform 0.3s;
+    .form-group label {
+        font-size: 0.9rem;
+    }
+
+    .btn {
+        font-size: 0.85rem;
+        padding: 10px;
+    }
+
+    .action-buttons button {
+        font-size: 1rem;
+    }
 }
