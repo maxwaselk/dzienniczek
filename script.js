@@ -1,53 +1,56 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     const meetingForm = document.getElementById('meetingForm');
     const meetingList = document.getElementById('meetingList');
 
     // Funkcja do wczytania spotkań z LocalStorage
-    function loadMeetings() {
+    const loadMeetings = () => {
         const meetings = JSON.parse(localStorage.getItem('meetings')) || [];
         meetings.forEach(meeting => addMeetingToList(meeting));
-    }
+    };
 
     // Funkcja do zapisywania spotkań w LocalStorage
-    function saveMeetings(meetings) {
+    const saveMeetings = (meetings) => {
         localStorage.setItem('meetings', JSON.stringify(meetings));
-    }
+    };
 
     // Funkcja dodająca spotkanie do listy w UI
-    function addMeetingToList(meeting) {
+    const addMeetingToList = (meeting) => {
         const li = document.createElement('li');
-        li.setAttribute('data-id', meeting.id); // Ustawienie atrybutu data-id
+        li.setAttribute('data-id', meeting.id);
 
         const detailsDiv = document.createElement('div');
         detailsDiv.innerHTML = `
-            <span>Imię i Nazwisko: </span>${meeting.name}<br>
-            <span>Data: </span>${meeting.date}<br>
-            <span>Godzina: </span>${meeting.time}<br>
-            <span>Cel Spotkania: </span>${meeting.purpose}
+            <p><span>Imię i Nazwisko:</span> ${meeting.name}</p>
+            <p><span>Data:</span> ${formatDate(meeting.date)}</p>
+            <p><span>Godzina:</span> ${meeting.time}</p>
+            <p><span>Cel Spotkania:</span> ${meeting.purpose}</p>
         `;
 
-        // Tworzenie przycisku usuwania
         const deleteBtn = document.createElement('button');
-        deleteBtn.textContent = 'Usuń';
-        deleteBtn.addEventListener('click', function() {
-            li.remove();
-            removeMeeting(meeting.id);
+        deleteBtn.classList.add('delete-btn');
+        deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+        deleteBtn.addEventListener('click', () => {
+            li.classList.add('fade-out');
+            setTimeout(() => {
+                li.remove();
+                removeMeeting(meeting.id);
+            }, 300);
         });
 
         li.appendChild(detailsDiv);
         li.appendChild(deleteBtn);
-        meetingList.appendChild(li);
-    }
+        meetingList.prepend(li); // Dodaje nowe spotkania na górę listy
+    };
 
     // Funkcja usuwająca spotkanie z LocalStorage
-    function removeMeeting(id) {
+    const removeMeeting = (id) => {
         let meetings = JSON.parse(localStorage.getItem('meetings')) || [];
         meetings = meetings.filter(m => m.id !== id);
         saveMeetings(meetings);
-    }
+    };
 
     // Obsługa dodawania nowego spotkania
-    meetingForm.addEventListener('submit', function(e) {
+    meetingForm.addEventListener('submit', (e) => {
         e.preventDefault();
 
         const name = document.getElementById('name').value.trim();
@@ -57,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (name && date && time && purpose) {
             const meeting = {
-                id: Date.now(), // Unikalny identyfikator
+                id: Date.now(),
                 name,
                 date,
                 time,
@@ -73,6 +76,13 @@ document.addEventListener('DOMContentLoaded', function() {
             meetingForm.reset();
         }
     });
+
+    // Funkcja formatowania daty
+    const formatDate = (dateStr) => {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('pl-PL', options);
+    };
 
     // Wczytanie spotkań przy uruchomieniu
     loadMeetings();
