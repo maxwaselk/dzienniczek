@@ -215,15 +215,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Funkcja sprawdzająca, czy data jest poprawna i nie jest w przeszłości
     const isValidDate = (dateStr) => {
         const today = new Date();
+        today.setHours(0,0,0,0);
         const meetingDate = new Date(dateStr);
-        // Ustawienie czasu na koniec dnia dla spotkań
-        meetingDate.setHours(23, 59, 59, 999);
         return meetingDate >= today;
     };
 
     // Funkcja sprawdzająca, czy godzina jest poprawna
     const isValidTime = (timeStr) => {
-        // Można dodać bardziej zaawansowane sprawdzanie, jeśli potrzebne
         return /^([0-1]\d|2[0-3]):([0-5]\d)$/.test(timeStr);
     };
 
@@ -243,6 +241,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, timeDifference);
             }
         }
+    };
+
+    // Funkcja obsługująca animację usuwania
+    const handleRemove = (li, id) => {
+        li.classList.add('fade-out');
+        setTimeout(() => {
+            li.remove();
+            removeMeeting(id);
+        }, 300);
     };
 
     // Obsługa ładowania spotkań przy uruchomieniu
