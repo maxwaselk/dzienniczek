@@ -16,6 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Funkcja dodająca spotkanie do listy w UI
     function addMeetingToList(meeting) {
         const li = document.createElement('li');
+        li.setAttribute('data-id', meeting.id); // Ustawienie atrybutu data-id
+
         const detailsDiv = document.createElement('div');
         detailsDiv.innerHTML = `
             <span>Imię i Nazwisko: </span>${meeting.name}<br>
@@ -29,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
         deleteBtn.textContent = 'Usuń';
         deleteBtn.addEventListener('click', function() {
             li.remove();
-            removeMeeting(meeting);
+            removeMeeting(meeting.id);
         });
 
         li.appendChild(detailsDiv);
@@ -38,9 +40,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Funkcja usuwająca spotkanie z LocalStorage
-    function removeMeeting(meeting) {
+    function removeMeeting(id) {
         let meetings = JSON.parse(localStorage.getItem('meetings')) || [];
-        meetings = meetings.filter(m => m.name !== meeting.name || m.date !== meeting.date || m.time !== meeting.time || m.purpose !== meeting.purpose);
+        meetings = meetings.filter(m => m.id !== id);
         saveMeetings(meetings);
     }
 
@@ -48,13 +50,20 @@ document.addEventListener('DOMContentLoaded', function() {
     meetingForm.addEventListener('submit', function(e) {
         e.preventDefault();
 
-        const name = document.getElementById('name').value;
+        const name = document.getElementById('name').value.trim();
         const date = document.getElementById('date').value;
         const time = document.getElementById('time').value;
-        const purpose = document.getElementById('purpose').value;
+        const purpose = document.getElementById('purpose').value.trim();
 
         if (name && date && time && purpose) {
-            const meeting = { name, date, time, purpose };
+            const meeting = {
+                id: Date.now(), // Unikalny identyfikator
+                name,
+                date,
+                time,
+                purpose
+            };
+
             addMeetingToList(meeting);
             let meetings = JSON.parse(localStorage.getItem('meetings')) || [];
             meetings.push(meeting);
