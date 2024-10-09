@@ -6,9 +6,22 @@
     --background-color: #f0f2f5;
     --text-color: #333;
     --light-bg: #fff;
+    --dark-bg: #1e1e1e;
     --border-radius: 8px;
     --transition-speed: 0.3s;
     --font-family: 'Roboto', sans-serif;
+    --modal-bg: rgba(0, 0, 0, 0.5);
+}
+
+/* Motyw Ciemny */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background-color: #121212;
+        --light-bg: #1e1e1e;
+        --text-color: #e0e0e0;
+        --secondary-color: #bb86fc;
+        --modal-bg: rgba(255, 255, 255, 0.2);
+    }
 }
 
 * {
@@ -81,7 +94,9 @@ header h1::after {
     border: 1px solid #ccc;
     border-radius: var(--border-radius);
     font-size: 1rem;
-    transition: border 0.3s;
+    transition: border 0.3s, background-color 0.3s, color 0.3s;
+    background-color: inherit;
+    color: inherit;
 }
 
 .form-group input:focus {
@@ -98,14 +113,15 @@ header h1::after {
     border-radius: var(--border-radius);
     cursor: pointer;
     font-size: 1rem;
-    transition: background-color var(--transition-speed);
+    transition: background-color var(--transition-speed), transform var(--transition-speed);
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .btn:hover {
-    background-color: darken(var(--primary-color), 10%);
+    background-color: #0056b3;
+    transform: translateY(-2px);
 }
 
 .btn i {
@@ -137,6 +153,7 @@ header h1::after {
     opacity: 0;
     transform: translateY(20px);
     animation: slideIn 0.5s forwards;
+    position: relative;
 }
 
 .list-section li:nth-child(even) {
@@ -156,7 +173,13 @@ header h1::after {
     font-weight: 700;
 }
 
-.delete-btn {
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.action-buttons button {
     background: none;
     border: none;
     color: #fff;
@@ -165,7 +188,11 @@ header h1::after {
     transition: color var(--transition-speed);
 }
 
-.delete-btn:hover {
+.action-buttons button.edit-btn:hover {
+    color: #ffc107;
+}
+
+.action-buttons button.delete-btn:hover {
     color: #ff6b6b;
 }
 
@@ -177,6 +204,74 @@ header h1::after {
 @keyframes slideIn {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+/* Modal Styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: var(--modal-bg); /* Fallback color */
+    animation: fadeInModal 0.3s ease-in-out;
+}
+
+@keyframes fadeInModal {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background-color: var(--light-bg);
+    margin: 10% auto; /* 10% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 90%;
+    max-width: 500px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    animation: slideInModal 0.3s ease-in-out;
+}
+
+@keyframes slideInModal {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.close-btn {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color var(--transition-speed);
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: #000;
+    text-decoration: none;
+}
+
+.modal-content h2 {
+    margin-bottom: 20px;
+    color: var(--primary-color);
+}
+
+.modal-content .form-group input {
+    background-color: inherit;
+    color: inherit;
+}
+
+/* Animacja fade-out dla usuwania */
+.fade-out {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s, transform 0.3s;
 }
 
 /* Scrollbar Styling */
@@ -207,14 +302,14 @@ header h1::after {
         align-items: flex-start;
     }
 
+    .action-buttons {
+        flex-direction: row;
+        gap: 5px;
+        margin-top: 10px;
+    }
+
     .delete-btn {
         align-self: flex-end;
         margin-top: 10px;
     }
-}
-/* Animacja fade-out */
-.fade-out {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.3s, transform 0.3s;
 }
