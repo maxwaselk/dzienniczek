@@ -56,11 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
         deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
         deleteBtn.title = 'Usuń Spotkanie';
         deleteBtn.addEventListener('click', () => {
-            li.classList.add('fade-out');
-            setTimeout(() => {
-                li.remove();
-                removeMeeting(meeting.id);
-            }, 300);
+            handleRemove(li, meeting.id);
         });
 
         actionButtons.appendChild(editBtn);
@@ -117,11 +113,13 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('editTime').value = meeting.time;
         document.getElementById('editPurpose').value = meeting.purpose;
         editModal.style.display = 'block';
+        editModal.setAttribute('aria-hidden', 'false');
     };
 
     // Funkcja zamykająca modal
     const closeEditModal = () => {
         editModal.style.display = 'none';
+        editModal.setAttribute('aria-hidden', 'true');
         editForm.reset();
         currentEditId = null;
     };
