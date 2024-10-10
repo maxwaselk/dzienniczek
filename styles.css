@@ -11,6 +11,11 @@
     --transition-speed: 0.3s;
     --font-family: 'Roboto', sans-serif;
     --modal-bg: rgba(0, 0, 0, 0.5);
+    --input-border-color: #ccc;
+    --input-focus-border-color: var(--primary-color);
+    --label-color: #999;
+    --label-focus-color: var(--primary-color);
+    --btn-hover-bg: darken(var(--primary-color), 10%);
 }
 
 /* Motyw Ciemny */
@@ -21,6 +26,8 @@
         --text-color: #e0e0e0;
         --secondary-color: #bb86fc;
         --modal-bg: rgba(255, 255, 255, 0.2);
+        --input-border-color: #555;
+        --label-color: #ccc;
     }
 }
 
@@ -88,16 +95,16 @@ header h1::after {
 
 .form-group input {
     padding: 12px 15px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--input-border-color);
     border-radius: var(--border-radius);
     font-size: 1rem;
     transition: border 0.3s, background-color 0.3s, color 0.3s;
-    background-color: inherit;
-    color: inherit;
+    background-color: transparent;
+    color: var(--text-color);
 }
 
 .form-group input:focus {
-    border-color: var(--primary-color);
+    border-color: var(--input-focus-border-color);
     outline: none;
     box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
 }
@@ -109,7 +116,7 @@ header h1::after {
     transform: translateY(-50%);
     background-color: var(--light-bg);
     padding: 0 5px;
-    color: #999;
+    color: var(--label-color);
     font-size: 1rem;
     transition: all 0.3s;
     pointer-events: none;
@@ -126,7 +133,7 @@ header h1::after {
     top: -10px;
     left: 10px;
     font-size: 0.85rem;
-    color: var(--primary-color);
+    color: var(--label-focus-color);
 }
 
 .btn {
@@ -145,7 +152,7 @@ header h1::after {
 }
 
 .btn:hover {
-    background-color: darken(var(--primary-color), 10%);
+    background-color: #0056b3; /* darken(var(--primary-color), 10%) not supported in pure CSS */
     transform: translateY(-2px);
 }
 
@@ -167,7 +174,7 @@ header h1::after {
 
 .list-section li {
     background: rgba(255, 255, 255, 0.1);
-    color: #fff;
+    color: var(--text-color);
     padding: 20px;
     border-radius: var(--border-radius);
     margin-bottom: 20px;
@@ -181,7 +188,7 @@ header h1::after {
     position: relative;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    transition: background 0.3s;
+    transition: background 0.3s, color 0.3s;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -192,6 +199,12 @@ header h1::after {
 
 .list-section li:nth-child(even) {
     background: rgba(255, 255, 255, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+    .list-section li:nth-child(even) {
+        background: rgba(30, 30, 30, 0.5);
+    }
 }
 
 .list-section li div {
@@ -216,7 +229,7 @@ header h1::after {
 .action-buttons button {
     background: none;
     border: none;
-    color: #fff;
+    color: var(--text-color);
     cursor: pointer;
     font-size: 1.2rem;
     transition: color var(--transition-speed);
@@ -303,11 +316,10 @@ header h1::after {
 }
 
 .modal-content .form-group input {
-    background-color: inherit;
-    color: inherit;
+    background-color: transparent;
+    color: var(--text-color);
 }
 
-/* Animacja fade-out dla usuwania */
 .fade-out {
     opacity: 0;
     transform: translateY(20px);
