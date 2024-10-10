@@ -7,10 +7,14 @@
     --text-color: #333;
     --light-bg: #ffffff;
     --dark-bg: #1e1e1e;
-    --border-radius: 8px;
+    --border-radius: 12px;
     --transition-speed: 0.3s;
     --font-family: 'Roboto', sans-serif;
     --modal-bg: rgba(0, 0, 0, 0.5);
+    --input-border: #ccc;
+    --input-focus-border: var(--primary-color);
+    --label-color: #999;
+    --label-active-color: var(--primary-color);
 }
 
 /* Motyw Ciemny */
@@ -21,6 +25,8 @@
         --text-color: #e0e0e0;
         --secondary-color: #bb86fc;
         --modal-bg: rgba(255, 255, 255, 0.2);
+        --input-border: #555;
+        --label-color: #bbb;
     }
 }
 
@@ -37,13 +43,15 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    color: var(--text-color);
 }
 
 .container {
-    background-color: var(--light-bg);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
     padding: 40px;
     border-radius: var(--border-radius);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
     width: 100%;
     max-width: 700px;
     animation: fadeIn 0.5s ease-in-out;
@@ -86,16 +94,16 @@ header h1::after {
 
 .form-group input {
     padding: 12px 15px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--input-border);
     border-radius: var(--border-radius);
     font-size: 1rem;
     transition: border 0.3s, background-color 0.3s, color 0.3s;
-    background-color: inherit;
+    background-color: transparent;
     color: inherit;
 }
 
 .form-group input:focus {
-    border-color: var(--primary-color);
+    border-color: var(--input-focus-border);
     outline: none;
     box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
 }
@@ -107,7 +115,7 @@ header h1::after {
     transform: translateY(-50%);
     background-color: var(--light-bg);
     padding: 0 5px;
-    color: #999;
+    color: var(--label-color);
     font-size: 1rem;
     transition: all 0.3s;
     pointer-events: none;
@@ -124,11 +132,11 @@ header h1::after {
     top: -10px;
     left: 10px;
     font-size: 0.85rem;
-    color: var(--primary-color);
+    color: var(--label-active-color);
 }
 
 .btn {
-    padding: 12px;
+    padding: 12px 20px;
     background-color: var(--primary-color);
     color: #fff;
     border: none;
@@ -139,10 +147,11 @@ header h1::after {
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 100%;
 }
 
 .btn:hover {
-    background-color: #0056b3;
+    background-color: darken(var(--primary-color), 10%);
     transform: translateY(-2px);
 }
 
@@ -163,28 +172,28 @@ header h1::after {
 }
 
 .list-section li {
-    background-color: var(--secondary-color);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
     color: #fff;
     padding: 20px;
     border-radius: var(--border-radius);
     margin-bottom: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: start;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     opacity: 0;
     transform: translateY(20px);
     animation: slideIn 0.5s forwards;
-    position: relative;
     transition: background-color var(--transition-speed);
 }
 
 .list-section li:nth-child(even) {
-    background-color: #50e3c2;
+    background: rgba(80, 227, 194, 0.2);
 }
 
 .list-section li div {
-    max-width: 80%;
+    max-width: 100%;
 }
 
 .list-section li div p {
@@ -249,7 +258,8 @@ header h1::after {
 }
 
 .modal-content {
-    background-color: var(--light-bg);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
     margin: 5% auto; /* 5% from the top and centered */
     padding: 30px;
     border: 1px solid #888;
@@ -290,8 +300,17 @@ header h1::after {
 }
 
 .modal-content .form-group input {
-    background-color: inherit;
+    background-color: transparent;
     color: inherit;
+}
+
+.modal-content .form-group label {
+    background-color: inherit;
+}
+
+.modal-content .form-group input:focus + label,
+.modal-content .form-group input:not(:placeholder-shown) + label {
+    color: var(--label-active-color);
 }
 
 /* Animacja fade-out dla usuwania */
@@ -326,7 +345,7 @@ header h1::after {
     }
 
     .list-section li {
-        flex-direction: column;
+        grid-template-columns: 1fr;
         align-items: flex-start;
     }
 
