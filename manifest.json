@@ -1,20 +1,20 @@
 {
-    "short_name": "Glukoza",
-    "name": "Monitorowanie Poziomu Glukozy",
-    "icons": [
-        {
-            "src": "icons/icon-192x192.png",
-            "type": "image/png",
-            "sizes": "192x192"
-        },
-        {
-            "src": "icons/icon-512x512.png",
-            "type": "image/png",
-            "sizes": "512x512"
-        }
-    ],
+    "name": "Terminarz Spotkań",
+    "short_name": "Terminarz",
     "start_url": "/index.html",
     "display": "standalone",
-    "theme_color": "#4CAF50",
-    "background_color": "#f0f4f8"
+    "background_color": "#f0f2f5",
+    "theme_color": "#4a90e2",
+    "icons": [
+        {
+            "src": "icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
 }
