@@ -119,9 +119,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Funkcja zamykająca modal
     const closeEditModal = () => {
         editModal.style.display = 'none';
-        editModal.setAttribute('aria-hidden', 'true');
         editForm.reset();
         currentEditId = null;
+        editModal.setAttribute('aria-hidden', 'true');
     };
 
     // Obsługa zamykania modalu
