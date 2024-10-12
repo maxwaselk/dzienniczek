@@ -1,255 +1,341 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const meetingForm = document.getElementById('meetingForm');
-    const meetingList = document.getElementById('meetingList');
-    const editModal = document.getElementById('editModal');
-    const closeModalBtn = document.querySelector('.close-btn');
-    const editForm = document.getElementById('editForm');
-
-    let currentEditId = null;
-
-    // Sprawdzenie i żądanie uprawnień do powiadomień
-    if ('Notification' in window) {
-        if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
-            Notification.requestPermission().then(permission => {
-                if (permission === 'granted') {
-                    console.log('Uprawnienia do powiadomień przyznane.');
-                }
-            });
+// Inicjalizacja Notyf
+const notyf = new Notyf({
+    duration: 3000,
+    position: { x: 'right', y: 'top' },
+    types: [
+        {
+            type: 'success',
+            background: 'green',
+            icon: {
+                className: 'notyf__icon lucide lucide-check-circle',
+                tagName: 'svg',
+                text: ''
+            }
+        },
+        {
+            type: 'error',
+            background: 'red',
+            icon: {
+                className: 'notyf__icon lucide lucide-x-circle',
+                tagName: 'svg',
+                text: ''
+            }
+        },
+        {
+            type: 'info',
+            background: 'blue',
+            icon: {
+                className: 'notyf__icon lucide lucide-info',
+                tagName: 'svg',
+                text: ''
+            }
         }
+    ]
+});
+
+// Funkcja do przechowywania historii powiadomień
+function saveNotificationHistory(message, type) {
+    const history = JSON.parse(localStorage.getItem('notificationHistory')) || [];
+    history.push({ message, type, timestamp: new Date().toLocaleString() });
+    localStorage.setItem('notificationHistory', JSON.stringify(history));
+    renderNotificationHistory();
+}
+
+// Funkcja do renderowania historii powiadomień
+function renderNotificationHistory() {
+    const historyContainer = document.getElementById('notificationHistory');
+    historyContainer.innerHTML = ''; // Wyczyść historię przed renderowaniem
+
+    const history = JSON.parse(localStorage.getItem('notificationHistory')) || [];
+
+    history.forEach(notification => {
+        const div = document.createElement('div');
+        div.className = `notification-card ${getNotificationTypeClass(notification.type)} notification-card-enter`;
+        div.innerHTML = `
+            <div class="notification-icon ${getNotificationColor(notification.type)}">
+                ${getNotificationIcon(notification.type)}
+            </div>
+            <div class="notification-content">
+                <p class="notification-title capitalize">${notification.type}</p>
+                <p class="notification-message">${notification.message}</p>
+                <p class="notification-timestamp">${notification.timestamp}</p>
+            </div>
+        `;
+        historyContainer.appendChild(div);
+        // Trigger animation
+        requestAnimationFrame(() => {
+            div.classList.remove('notification-card-enter');
+            div.classList.add('notification-card-enter-active');
+        });
+    });
+}
+
+// Funkcja do filtrowania powiadomień
+function filterNotifications(type) {
+    const history = JSON.parse(localStorage.getItem('notificationHistory')) || [];
+    let filteredHistory;
+
+    if (type === 'all') {
+        filteredHistory = history;
+    } else {
+        filteredHistory = history.filter(notification => notification.type === type);
     }
 
-    // Funkcja do wczytania spotkań z LocalStorage
-    const loadMeetings = () => {
-        const meetings = JSON.parse(localStorage.getItem('meetings')) || [];
-        meetings.forEach(meeting => addMeetingToList(meeting));
-    };
+    const historyContainer = document.getElementById('notificationHistory');
+    historyContainer.innerHTML = ''; // Wyczyść historię przed renderowaniem
 
-    // Funkcja do zapisywania spotkań w LocalStorage
-    const saveMeetings = (meetings) => {
-        localStorage.setItem('meetings', JSON.stringify(meetings));
-    };
-
-    // Funkcja dodająca spotkanie do listy w UI
-    const addMeetingToList = (meeting) => {
-        const li = document.createElement('li');
-        li.setAttribute('data-id', meeting.id);
-
-        const detailsDiv = document.createElement('div');
-        detailsDiv.innerHTML = `
-            <p><span>Imię i Nazwisko:</span> ${meeting.name}</p>
-            <p><span>Data:</span> ${formatDate(meeting.date)}</p>
-            <p><span>Godzina:</span> ${meeting.time}</p>
-            <p><span>Cel Spotkania:</span> ${meeting.purpose}</p>
+    filteredHistory.forEach(notification => {
+        const div = document.createElement('div');
+        div.className = `notification-card ${getNotificationTypeClass(notification.type)} notification-card-enter`;
+        div.innerHTML = `
+            <div class="notification-icon ${getNotificationColor(notification.type)}">
+                ${getNotificationIcon(notification.type)}
+            </div>
+            <div class="notification-content">
+                <p class="notification-title capitalize">${notification.type}</p>
+                <p class="notification-message">${notification.message}</p>
+                <p class="notification-timestamp">${notification.timestamp}</p>
+            </div>
         `;
-
-        const actionButtons = document.createElement('div');
-        actionButtons.classList.add('action-buttons');
-
-        const editBtn = document.createElement('button');
-        editBtn.classList.add('edit-btn');
-        editBtn.innerHTML = '<i class="fas fa-edit"></i>';
-        editBtn.title = 'Edytuj Spotkanie';
-        editBtn.addEventListener('click', () => openEditModal(meeting));
-
-        const deleteBtn = document.createElement('button');
-        deleteBtn.classList.add('delete-btn');
-        deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
-        deleteBtn.title = 'Usuń Spotkanie';
-        deleteBtn.addEventListener('click', () => {
-            handleRemove(li, meeting.id);
+        historyContainer.appendChild(div);
+        // Trigger animation
+        requestAnimationFrame(() => {
+            div.classList.remove('notification-card-enter');
+            div.classList.add('notification-card-enter-active');
         });
-
-        actionButtons.appendChild(editBtn);
-        actionButtons.appendChild(deleteBtn);
-
-        li.appendChild(detailsDiv);
-        li.appendChild(actionButtons);
-        meetingList.prepend(li); // Dodaje nowe spotkania na górę listy
-
-        // Ustawienie powiadomienia
-        scheduleNotification(meeting);
-    };
-
-    // Funkcja usuwająca spotkanie z LocalStorage
-    const removeMeeting = (id) => {
-        let meetings = JSON.parse(localStorage.getItem('meetings')) || [];
-        meetings = meetings.filter(m => m.id !== id);
-        saveMeetings(meetings);
-    };
-
-    // Obsługa dodawania nowego spotkania
-    meetingForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-
-        const name = document.getElementById('name').value.trim();
-        const date = document.getElementById('date').value;
-        const time = document.getElementById('time').value;
-        const purpose = document.getElementById('purpose').value.trim();
-
-        if (validateForm(name, date, time, purpose)) {
-            const meeting = {
-                id: Date.now(),
-                name,
-                date,
-                time,
-                purpose
-            };
-
-            addMeetingToList(meeting);
-            let meetings = JSON.parse(localStorage.getItem('meetings')) || [];
-            meetings.push(meeting);
-            saveMeetings(meetings);
-
-            // Resetowanie formularza
-            meetingForm.reset();
-        }
     });
+}
 
-    // Funkcja otwierająca modal do edycji spotkania
-    const openEditModal = (meeting) => {
-        currentEditId = meeting.id;
-        document.getElementById('editName').value = meeting.name;
-        document.getElementById('editDate').value = meeting.date;
-        document.getElementById('editTime').value = meeting.time;
-        document.getElementById('editPurpose').value = meeting.purpose;
-        editModal.style.display = 'block';
-        editModal.setAttribute('aria-hidden', 'false');
-    };
+// Funkcja do określania klasy koloru powiadomienia
+function getNotificationColor(type) {
+    switch(type) {
+        case 'success':
+            return 'bg-green-500';
+        case 'error':
+            return 'bg-red-500';
+        case 'info':
+            return 'bg-blue-500';
+        default:
+            return 'bg-gray-500';
+    }
+}
 
-    // Funkcja zamykająca modal
-    const closeEditModal = () => {
-        editModal.style.display = 'none';
-        editForm.reset();
-        currentEditId = null;
-        editModal.setAttribute('aria-hidden', 'true');
-    };
-
-    // Obsługa zamykania modalu
-    closeModalBtn.addEventListener('click', closeEditModal);
-    window.addEventListener('click', (e) => {
-        if (e.target == editModal) {
-            closeEditModal();
-        }
-    });
-
-    // Obsługa edycji spotkania
-    editForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-
-        const name = document.getElementById('editName').value.trim();
-        const date = document.getElementById('editDate').value;
-        const time = document.getElementById('editTime').value;
-        const purpose = document.getElementById('editPurpose').value.trim();
-
-        if (validateForm(name, date, time, purpose)) {
-            let meetings = JSON.parse(localStorage.getItem('meetings')) || [];
-            const meetingIndex = meetings.findIndex(m => m.id === currentEditId);
-            if (meetingIndex !== -1) {
-                meetings[meetingIndex] = {
-                    id: currentEditId,
-                    name,
-                    date,
-                    time,
-                    purpose
-                };
-                saveMeetings(meetings);
-                updateMeetingInUI(meetings[meetingIndex]);
-                closeEditModal();
-            }
-        }
-    });
-
-    // Funkcja aktualizująca spotkanie w interfejsie użytkownika
-    const updateMeetingInUI = (meeting) => {
-        const li = meetingList.querySelector(`li[data-id='${meeting.id}']`);
-        if (li) {
-            const detailsDiv = li.querySelector('div');
-            detailsDiv.innerHTML = `
-                <p><span>Imię i Nazwisko:</span> ${meeting.name}</p>
-                <p><span>Data:</span> ${formatDate(meeting.date)}</p>
-                <p><span>Godzina:</span> ${meeting.time}</p>
-                <p><span>Cel Spotkania:</span> ${meeting.purpose}</p>
+// Funkcja do zwracania ikony powiadomienia
+function getNotificationIcon(type) {
+    switch(type) {
+        case 'success':
+            return `
+                <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M9 12l2 2l4 -4"></path>
+                    <circle cx="12" cy="12" r="10"></circle>
+                </svg>
             `;
-            // Opcjonalnie: odświeżenie powiadomień
-            scheduleNotification(meeting);
-        }
-    };
+        case 'error':
+            return `
+                <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-x-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M18 6L6 18"></path>
+                    <path d="M6 6L18 18"></path>
+                    <circle cx="12" cy="12" r="10"></circle>
+                </svg>
+            `;
+        case 'info':
+            return `
+                <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-info" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+            `;
+        default:
+            return '';
+    }
+}
 
-    // Funkcja formatowania daty
-    const formatDate = (dateStr) => {
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        const date = new Date(dateStr);
-        return date.toLocaleDateString('pl-PL', options);
-    };
+// Funkcja do określania klasy typu powiadomienia dla karty
+function getNotificationTypeClass(type) {
+    switch(type) {
+        case 'success':
+            return 'border-l-4 border-green-500';
+        case 'error':
+            return 'border-l-4 border-red-500';
+        case 'info':
+            return 'border-l-4 border-blue-500';
+        default:
+            return 'border-l-4 border-gray-500';
+    }
+}
 
-    // Funkcja walidująca formularz
-    const validateForm = (name, date, time, purpose) => {
-        const errors = [];
+// Funkcja do renderowania historii powiadomień
+function renderNotificationHistory() {
+    const historyContainer = document.getElementById('notificationHistory');
+    historyContainer.innerHTML = ''; // Wyczyść historię przed renderowaniem
 
-        if (name.length < 3) {
-            errors.push('Imię i nazwisko musi mieć co najmniej 3 znaki.');
-        }
+    const history = JSON.parse(localStorage.getItem('notificationHistory')) || [];
 
-        if (!isValidDate(date)) {
-            errors.push('Data musi być poprawna i nie może być w przeszłości.');
-        }
+    history.forEach(notification => {
+        const div = document.createElement('div');
+        div.className = `notification-card ${getNotificationTypeClass(notification.type)} notification-card-enter`;
+        div.innerHTML = `
+            <div class="notification-icon ${getNotificationColor(notification.type)}">
+                ${getNotificationIcon(notification.type)}
+            </div>
+            <div class="notification-content">
+                <p class="notification-title capitalize">${notification.type}</p>
+                <p class="notification-message">${notification.message}</p>
+                <p class="notification-timestamp">${notification.timestamp}</p>
+            </div>
+        `;
+        historyContainer.appendChild(div);
+        // Trigger animation
+        requestAnimationFrame(() => {
+            div.classList.remove('notification-card-enter');
+            div.classList.add('notification-card-enter-active');
+        });
+    });
+}
 
-        if (!isValidTime(time)) {
-            errors.push('Godzina musi być poprawna.');
-        }
+// Inicjalizacja historii powiadomień przy załadowaniu strony
+document.addEventListener('DOMContentLoaded', renderNotificationHistory);
 
-        if (purpose.length < 5) {
-            errors.push('Cel spotkania musi mieć co najmniej 5 znaków.');
-        }
+// Obsługa formularza
+document.getElementById('meetingForm').addEventListener('submit', function(e) {
+    e.preventDefault(); // Zatrzymaj domyślną akcję formularza
 
-        if (errors.length > 0) {
-            alert(errors.join('\n'));
-            return false;
-        }
+    // Pobierz wartości z formularza
+    const name = document.getElementById('name').value.trim();
+    const date = document.getElementById('date').value;
+    const time = document.getElementById('time').value;
+    const purpose = document.getElementById('purpose').value.trim();
 
-        return true;
-    };
+    // Obsługa błędów
+    if (!name || !date || !time || !purpose) {
+        notyf.error('Wszystkie pola są wymagane!');
+        saveNotificationHistory('Wszystkie pola są wymagane!', 'error');
+        return;
+    }
 
-    // Funkcja sprawdzająca, czy data jest poprawna i nie jest w przeszłości
-    const isValidDate = (dateStr) => {
-        const today = new Date();
-        today.setHours(0,0,0,0);
-        const meetingDate = new Date(dateStr);
-        return meetingDate >= today;
-    };
+    // Przechowaj spotkania w localStorage
+    const meetings = JSON.parse(localStorage.getItem('meetings')) || [];
+    
+    // Jeśli edytujemy spotkanie
+    if (this.dataset.editingId) {
+        const index = meetings.findIndex(meeting => meeting.id === this.dataset.editingId);
+        meetings[index] = { id: this.dataset.editingId, name, date, time, purpose };
+        this.removeAttribute('data-editingId');
+        notyf.success('Spotkanie zaktualizowane pomyślnie!');
+        saveNotificationHistory('Spotkanie zaktualizowane pomyślnie!', 'success');
+    } else {
+        // Stwórz nowe spotkanie
+        const newMeeting = { id: Date.now().toString(), name, date, time, purpose };
+        meetings.push(newMeeting);
+        notyf.success('Spotkanie dodane pomyślnie!');
+        saveNotificationHistory('Spotkanie dodane pomyślnie!', 'success');
+    }
 
-    // Funkcja sprawdzająca, czy godzina jest poprawna
-    const isValidTime = (timeStr) => {
-        return /^([0-1]\d|2[0-3]):([0-5]\d)$/.test(timeStr);
-    };
+    // Zaktualizuj localStorage
+    localStorage.setItem('meetings', JSON.stringify(meetings));
 
-    // Funkcja ustawiająca powiadomienia
-    const scheduleNotification = (meeting) => {
-        if ('Notification' in window && Notification.permission === 'granted') {
-            const meetingDateTime = new Date(`${meeting.date}T${meeting.time}`);
-            const now = new Date();
-            const timeDifference = meetingDateTime - now - (15 * 60 * 1000); // Powiadomienie 15 minut przed spotkaniem
-
-            if (timeDifference > 0) {
-                setTimeout(() => {
-                    new Notification('Przypomnienie o spotkaniu', {
-                        body: `Spotkanie z ${meeting.name} o ${meeting.time} w dniu ${formatDate(meeting.date)}.\nCel: ${meeting.purpose}`,
-                        icon: 'https://via.placeholder.com/128' // Możesz zmienić na własną ikonę
-                    });
-                }, timeDifference);
-            }
-        }
-    };
-
-    // Funkcja obsługująca animację usuwania
-    const handleRemove = (li, id) => {
-        li.classList.add('fade-out');
-        setTimeout(() => {
-            li.remove();
-            removeMeeting(id);
-        }, 300);
-    };
-
-    // Obsługa ładowania spotkań przy uruchomieniu
-    loadMeetings();
+    // Wyczyść formularz
+    this.reset();
+    renderMeetings();
 });
+
+// Funkcja do renderowania spotkań
+function renderMeetings() {
+    const meetingList = document.getElementById('meetingList');
+    meetingList.innerHTML = ''; // Wyczyść listę przed renderowaniem
+
+    const meetings = JSON.parse(localStorage.getItem('meetings')) || [];
+
+    meetings.forEach(meeting => {
+        const card = document.createElement('div');
+        card.className = 'bg-white p-4 rounded-lg shadow-md transition duration-300 transform hover:scale-105';
+        card.innerHTML = `
+            <div>
+                <h3 class="font-bold">${meeting.name}</h3>
+                <p>${meeting.date} ${meeting.time}</p>
+                <p class="text-gray-600">${meeting.purpose}</p>
+            </div>
+            <div class="flex space-x-2 mt-2">
+                <button class="bg-yellow-500 hover:bg-yellow-600 text-white p-2 rounded-lg flex items-center" onclick="editMeeting('${meeting.id}')">
+                    <span class="lucide lucide-edit mr-2"></span> Edytuj
+                </button>
+                <button class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg flex items-center" onclick="removeMeeting('${meeting.id}')">
+                    <span class="lucide lucide-trash mr-2"></span> Usuń
+                </button>
+            </div>
+        `;
+        meetingList.appendChild(card);
+    });
+}
+
+// Funkcja do usuwania spotkania
+function removeMeeting(id) {
+    const meetings = JSON.parse(localStorage.getItem('meetings')) || [];
+    const updatedMeetings = meetings.filter(meeting => meeting.id !== id);
+    localStorage.setItem('meetings', JSON.stringify(updatedMeetings));
+    renderMeetings();
+    notyf.success('Spotkanie usunięte pomyślnie!');
+    saveNotificationHistory('Spotkanie usunięte pomyślnie!', 'success');
+}
+
+// Funkcja do edytowania spotkania
+function editMeeting(id) {
+    const meetings = JSON.parse(localStorage.getItem('meetings')) || [];
+    const meeting = meetings.find(meeting => meeting.id === id);
+    
+    // Ustaw wartości formularza na dane spotkania
+    document.getElementById('name').value = meeting.name;
+    document.getElementById('date').value = meeting.date;
+    document.getElementById('time').value = meeting.time;
+    document.getElementById('purpose').value = meeting.purpose;
+    document.getElementById('meetingForm').dataset.editingId = id; // Ustaw atrybut edycji
+
+    // Powiadomienie informujące o trybie edycji
+    notyf.info('Tryb edycji: Zaktualizuj dane spotkania.');
+    saveNotificationHistory('Tryb edycji: Zaktualizuj dane spotkania.', 'info');
+}
+
+// Funkcja do czyszczenia historii powiadomień
+function clearNotificationHistory() {
+    localStorage.removeItem('notificationHistory');
+    renderNotificationHistory();
+    notyf.success('Historia powiadomień została wyczyszczona.');
+    saveNotificationHistory('Historia powiadomień została wyczyszczona.', 'success');
+}
+
+// Funkcja do filtrowania powiadomień
+function filterNotifications(type) {
+    const history = JSON.parse(localStorage.getItem('notificationHistory')) || [];
+    let filteredHistory;
+
+    if (type === 'all') {
+        filteredHistory = history;
+    } else {
+        filteredHistory = history.filter(notification => notification.type === type);
+    }
+
+    const historyContainer = document.getElementById('notificationHistory');
+    historyContainer.innerHTML = ''; // Wyczyść historię przed renderowaniem
+
+    filteredHistory.forEach(notification => {
+        const div = document.createElement('div');
+        div.className = `notification-card ${getNotificationTypeClass(notification.type)} notification-card-enter`;
+        div.innerHTML = `
+            <div class="notification-icon ${getNotificationColor(notification.type)}">
+                ${getNotificationIcon(notification.type)}
+            </div>
+            <div class="notification-content">
+                <p class="notification-title capitalize">${notification.type}</p>
+                <p class="notification-message">${notification.message}</p>
+                <p class="notification-timestamp">${notification.timestamp}</p>
+            </div>
+        `;
+        historyContainer.appendChild(div);
+        // Trigger animation
+        requestAnimationFrame(() => {
+            div.classList.remove('notification-card-enter');
+            div.classList.add('notification-card-enter-active');
+        });
+    });
+}
