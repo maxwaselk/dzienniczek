@@ -12,7 +12,11 @@
             theme: {
                 extend: {
                     colors: {
-                        clifford: '#da373d',
+                        white: { DEFAULT: '#ffffff', 100: '#333333', 200: '#666666', 300: '#999999', 400: '#cccccc', 500: '#ffffff', 600: '#ffffff', 700: '#ffffff', 800: '#ffffff', 900: '#ffffff' },
+                        pink: { DEFAULT: '#ffcad4', 100: '#5c0011', 200: '#b80022', 300: '#ff143f', 400: '#ff708a', 500: '#ffcad4', 600: '#ffd6de', 700: '#ffe0e6', 800: '#ffebee', 900: '#fff5f7' },
+                        light_blue: { DEFAULT: '#b0d0d3', 100: '#1c3032', 200: '#386063', 300: '#548f95', 400: '#7fb2b7', 500: '#b0d0d3', 600: '#c0d9dc', 700: '#d0e3e5', 800: '#e0eced', 900: '#eff6f6' },
+                        puce: { DEFAULT: '#c08497', 100: '#2b161d', 200: '#562c3a', 300: '#814356', 400: '#aa5b74', 500: '#c08497', 600: '#cd9ead', 700: '#dab6c1', 800: '#e6cfd6', 900: '#f3e7ea' },
+                        melon: { DEFAULT: '#f7af9d', 100: '#4b1406', 200: '#95270c', 300: '#e03b12', 400: '#f17151', 500: '#f7af9d', 600: '#f9beb0', 700: '#facec4', 800: '#fcdfd7', 900: '#fdefeb' },
                     }
                 }
             }
@@ -23,6 +27,20 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            background-color: #ffffff; /* Tło całej aplikacji */
+        }
+        header {
+            background-color: #b0d0d3; /* Tło nagłówka */
+        }
+        .button-gradient {
+            background-image: linear-gradient(to right, #ffcad4, #ff708a); /* Gradient różowego */
+        }
+        .button-gradient:hover {
+            background-image: linear-gradient(to right, #b80022, #ff143f); /* Ciemniejszy gradient na hover */
+        }
+        .input-focus:focus {
+            border-color: #ff708a; /* Kolor obramowania przy focu */
+            outline: none;
         }
     </style>
 </head>
@@ -45,7 +63,7 @@
         </nav>
 
         <!-- Nagłówek -->
-        <header class="bg-white shadow">
+        <header class="bg-light_blue-500 shadow">
             <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                 <h1 class="text-3xl font-bold tracking-tight text-gray-900">Zarządzanie Spotkaniami</h1>
             </div>
@@ -65,7 +83,7 @@
                             <div>
                                 <label for="imie_nazwisko" class="block text-sm font-medium leading-6 text-gray-900">Imię i nazwisko:</label>
                                 <div class="mt-2 relative">
-                                    <input type="text" id="imie_nazwisko" required aria-required="true" aria-describedby="imie_nazwisko_error" class="block w-full rounded-md border-0 py-1.5 pl-10 pr-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="Wprowadź imię i nazwisko">
+                                    <input type="text" id="imie_nazwisko" required aria-required="true" aria-describedby="imie_nazwisko_error" class="block w-full rounded-md border-0 py-1.5 pl-10 pr-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 input-focus" placeholder="Wprowadź imię i nazwisko">
                                     <!-- Ikona użytkownika -->
                                     <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -84,7 +102,7 @@
                             <div>
                                 <label for="data" class="block text-sm font-medium leading-6 text-gray-900">Data:</label>
                                 <div class="mt-2 relative">
-                                    <input type="date" id="data" required aria-required="true" aria-describedby="data_error" class="block w-full rounded-md border-0 py-1.5 pl-10 pr-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                    <input type="date" id="data" required aria-required="true" aria-describedby="data_error" class="block w-full rounded-md border-0 py-1.5 pl-10 pr-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 input-focus">
                                     <!-- Ikona kalendarza -->
                                     <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -103,7 +121,7 @@
                             <div>
                                 <label for="godzina" class="block text-sm font-medium leading-6 text-gray-900">Godzina:</label>
                                 <div class="mt-2 relative">
-                                    <input type="time" id="godzina" required aria-required="true" aria-describedby="godzina_error" class="block w-full rounded-md border-0 py-1.5 pl-10 pr-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                    <input type="time" id="godzina" required aria-required="true" aria-describedby="godzina_error" class="block w-full rounded-md border-0 py-1.5 pl-10 pr-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 input-focus">
                                     <!-- Ikona zegara -->
                                     <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -122,7 +140,7 @@
                             <div>
                                 <label for="sprawa" class="block text-sm font-medium leading-6 text-gray-900">W jakiej sprawie:</label>
                                 <div class="mt-2 relative">
-                                    <textarea id="sprawa" required aria-required="true" aria-describedby="sprawa_error" class="block w-full rounded-md border-0 py-1.5 pl-10 pr-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="Opisz sprawę (min. 10 znaków)"></textarea>
+                                    <textarea id="sprawa" required aria-required="true" aria-describedby="sprawa_error" class="block w-full rounded-md border-0 py-1.5 pl-10 pr-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 input-focus" placeholder="Opisz sprawę (min. 10 znaków)"></textarea>
                                     <!-- Ikona notatnika -->
                                     <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h10M7 16h10" />
@@ -139,7 +157,7 @@
                             
                             <!-- Przycisk Submit -->
                             <div>
-                                <button type="submit" id="submit-btn" class="w-full flex justify-center items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition duration-300" aria-live="polite" aria-busy="false">
+                                <button type="submit" id="submit-btn" class="w-full flex justify-center items-center rounded-md button-gradient text-white px-3 py-2 text-sm font-semibold shadow-lg hover:shadow-xl focus:outline-none transition duration-300" aria-live="polite" aria-busy="false">
                                     <!-- Ikona submit -->
                                     <svg id="submit-icon" class="w-5 h-5 mr-2 opacity-0 transition-opacity duration-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -151,8 +169,8 @@
                         
                         <!-- Filtry -->
                         <div id="filtrowanie" class="mt-8 space-y-4">
-                            <input type="text" id="szukaj" placeholder="Szukaj..." class="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
-                            <select id="sortuj" class="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                            <input type="text" id="szukaj" placeholder="Szukaj..." class="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-pink-400 sm:text-sm sm:leading-6">
+                            <select id="sortuj" class="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-pink-400 sm:text-sm sm:leading-6">
                                 <option value="data">Sortuj po dacie</option>
                                 <option value="imie_nazwisko">Sortuj po imieniu i nazwisku</option>
                             </select>
@@ -337,7 +355,7 @@
                         <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
                             <p class="text-sm text-gray-900">${spotkanie.sprawa}</p>
                             <div class="mt-4 flex space-x-3">
-                                <button onclick="edytujSpotkanie('${spotkanie.id}')" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300" aria-label="Edytuj spotkanie">
+                                <button onclick="edytujSpotkanie('${spotkanie.id}')" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white button-gradient hover:bg-pink-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 transition duration-300" aria-label="Edytuj spotkanie">
                                     <!-- Ikona Edytuj -->
                                     <svg class="w-5 h-5 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.536L16.732 3.196z" />
