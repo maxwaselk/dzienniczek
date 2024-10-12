@@ -4,27 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zarządzanie Spotkaniami</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <style type="text/tailwindcss">
-        @layer utilities {
-          .content-auto {
-            content-visibility: auto;
-          }
-        }
-    </style>
+    <!-- Tailwind Configuration (opcjonalne rozszerzenia) -->
     <script>
         tailwind.config = {
-          theme: {
-            extend: {
-              colors: {
-                clifford: '#da373d',
-              }
+            theme: {
+                extend: {
+                    colors: {
+                        clifford: '#da373d',
+                    }
+                }
             }
-          }
         }
     </script>
+    <!-- Import czcionki -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body {
             font-family: 'Inter', sans-serif;
         }
@@ -32,6 +28,7 @@
 </head>
 <body class="h-full">
     <div class="min-h-full">
+        <!-- Nawigacja -->
         <nav class="bg-gray-800">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="flex h-16 items-center justify-between">
@@ -47,19 +44,23 @@
             </div>
         </nav>
 
+        <!-- Nagłówek -->
         <header class="bg-white shadow">
             <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                 <h1 class="text-3xl font-bold tracking-tight text-gray-900">Zarządzanie Spotkaniami</h1>
             </div>
         </header>
 
+        <!-- Główna zawartość -->
         <main>
             <div class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
                 <div class="px-4 py-6 sm:px-0">
                     <div class="rounded-lg border-4 border-dashed border-gray-200 p-4 sm:p-6 lg:p-8">
+                        <!-- Formularz Spotkania -->
                         <form id="form-spotkanie" class="space-y-6">
                             <input type="hidden" id="id" value="">
                             
+                            <!-- Pole Imię i Nazwisko -->
                             <div>
                                 <label for="imie_nazwisko" class="block text-sm font-medium leading-6 text-gray-900">Imię i nazwisko:</label>
                                 <div class="mt-2 relative">
@@ -78,6 +79,7 @@
                                 </p>
                             </div>
                             
+                            <!-- Pole Data -->
                             <div>
                                 <label for="data" class="block text-sm font-medium leading-6 text-gray-900">Data:</label>
                                 <div class="mt-2 relative">
@@ -96,6 +98,7 @@
                                 </p>
                             </div>
                             
+                            <!-- Pole Godzina -->
                             <div>
                                 <label for="godzina" class="block text-sm font-medium leading-6 text-gray-900">Godzina:</label>
                                 <div class="mt-2 relative">
@@ -114,6 +117,7 @@
                                 </p>
                             </div>
                             
+                            <!-- Pole Sprawa -->
                             <div>
                                 <label for="sprawa" class="block text-sm font-medium leading-6 text-gray-900">W jakiej sprawie:</label>
                                 <div class="mt-2 relative">
@@ -132,8 +136,9 @@
                                 </p>
                             </div>
                             
+                            <!-- Przycisk Submit -->
                             <div>
-                                <button type="submit" id="submit-btn" class="w-full flex justify-center items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition duration-300">
+                                <button type="submit" id="submit-btn" class="w-full flex justify-center items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition duration-300">
                                     <!-- Ikona submit -->
                                     <svg id="submit-icon" class="w-5 h-5 mr-2 opacity-0 transition-opacity duration-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -143,6 +148,7 @@
                             </div>
                         </form>
                         
+                        <!-- Filtry -->
                         <div id="filtrowanie" class="mt-8 space-y-4">
                             <input type="text" id="szukaj" placeholder="Szukaj..." class="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                             <select id="sortuj" class="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
@@ -151,6 +157,7 @@
                             </select>
                         </div>
 
+                        <!-- Lista Spotkań -->
                         <h2 class="mt-8 text-2xl font-bold">Lista spotkań</h2>
                         <div id="spotkania" class="mt-4 space-y-4"></div>
                     </div>
@@ -159,16 +166,22 @@
         </main>
     </div>
 
+    <!-- Kontener na Powiadomienia -->
     <div id="powiadomienia" class="fixed top-4 right-4 z-50 flex flex-col space-y-2"></div>
 
+    <!-- Skrypt JavaScript -->
     <script>
+        // Pobranie istniejących spotkań z localStorage lub inicjalizacja pustej tablicy
         let spotkania = JSON.parse(localStorage.getItem('spotkania')) || [];
+
+        // Pobranie elementów DOM
         const form = document.getElementById('form-spotkanie');
         const spotkaniaContainer = document.getElementById('spotkania');
         const szukajInput = document.getElementById('szukaj');
         const sortujSelect = document.getElementById('sortuj');
         const powiadomieniaContainer = document.getElementById('powiadomienia');
 
+        // Funkcja walidująca formularz
         function walidujFormularz() {
             let isValid = true;
             const imieNazwisko = document.getElementById('imie_nazwisko');
@@ -183,8 +196,9 @@
                 error.classList.remove('opacity-0');
                 isValid = false;
             } else {
-                document.getElementById('imie_nazwisko_error').textContent = '';
-                document.getElementById('imie_nazwisko_error').classList.add('opacity-0');
+                const error = document.getElementById('imie_nazwisko_error');
+                error.textContent = '';
+                error.classList.add('opacity-0');
             }
 
             // Walidacja daty
@@ -195,8 +209,9 @@
                 error.classList.remove('opacity-0');
                 isValid = false;
             } else {
-                document.getElementById('data_error').textContent = '';
-                document.getElementById('data_error').classList.add('opacity-0');
+                const error = document.getElementById('data_error');
+                error.textContent = '';
+                error.classList.add('opacity-0');
             }
 
             // Walidacja godziny
@@ -206,8 +221,9 @@
                 error.classList.remove('opacity-0');
                 isValid = false;
             } else {
-                document.getElementById('godzina_error').textContent = '';
-                document.getElementById('godzina_error').classList.add('opacity-0');
+                const error = document.getElementById('godzina_error');
+                error.textContent = '';
+                error.classList.add('opacity-0');
             }
 
             // Walidacja sprawy
@@ -217,13 +233,15 @@
                 error.classList.remove('opacity-0');
                 isValid = false;
             } else {
-                document.getElementById('sprawa_error').textContent = '';
-                document.getElementById('sprawa_error').classList.add('opacity-0');
+                const error = document.getElementById('sprawa_error');
+                error.textContent = '';
+                error.classList.add('opacity-0');
             }
 
             return isValid;
         }
 
+        // Funkcja dodająca lub aktualizująca spotkanie
         function dodajLubAktualizujSpotkanie(e) {
             e.preventDefault();
             if (!walidujFormularz()) return;
@@ -252,6 +270,7 @@
                 spotkania.push(noweSpotkanie);
             }
             
+            // Zapisanie do localStorage
             localStorage.setItem('spotkania', JSON.stringify(spotkania));
             wyswietlSpotkania();
             form.reset();
@@ -260,6 +279,7 @@
             pokazPowiadomienie('Spotkanie zostało zapisane pomyślnie.', 'success');
         }
 
+        // Funkcja usuwająca spotkanie
         function usunSpotkanie(id) {
             if (confirm('Czy na pewno chcesz usunąć to spotkanie?')) {
                 spotkania = spotkania.filter(spotkanie => spotkanie.id !== id);
@@ -269,6 +289,7 @@
             }
         }
 
+        // Funkcja edytująca spotkanie
         function edytujSpotkanie(id) {
             const spotkanie = spotkania.find(s => s.id === id);
             if (spotkanie) {
@@ -282,6 +303,7 @@
             }
         }
 
+        // Funkcja wyświetlająca listę spotkań
         function wyswietlSpotkania() {
             let filtrowaneSpotkaniaHtml = spotkania
                 .filter(spotkanie => 
@@ -326,13 +348,14 @@
             spotkaniaContainer.innerHTML = filtrowaneSpotkaniaHtml || '<p class="text-gray-500">Brak spotkań do wyświetlenia.</p>';
         }
 
+        // Funkcja pokazująca powiadomienie
         function pokazPowiadomienie(message, type) {
             const powiadomienie = document.createElement('div');
             powiadomienie.className = `flex items-center p-4 mb-4 text-sm rounded-lg shadow-lg 
                 ${type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}
                 opacity-0 transition-opacity duration-500`;
             
-            // Ikony
+            // Ikona
             const icon = document.createElement('svg');
             icon.className = 'w-5 h-5 mr-2';
             icon.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
@@ -349,6 +372,7 @@
             const tekst = document.createElement('span');
             tekst.textContent = message;
 
+            // Dodanie ikony i tekstu do powiadomienia
             powiadomienie.appendChild(icon);
             powiadomienie.appendChild(tekst);
             powiadomieniaContainer.appendChild(powiadomienie);
