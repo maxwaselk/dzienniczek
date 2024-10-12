@@ -30,7 +30,7 @@
             background-color: #f1e9da; /* Tło całej aplikacji */
         }
         header {
-            background-color: #541388; /* Tło nagłówka */
+            background: linear-gradient(to right, #541388, #791cc4); /* Gradient nagłówka */
         }
         .button-gradient {
             background-image: linear-gradient(to right, #d90368, #fc1a83); /* Gradient różowego */
@@ -105,9 +105,7 @@
                                     <input type="date" id="data" required aria-required="true" aria-describedby="data_error" class="block w-full rounded-md border-0 py-1.5 pl-10 pr-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 input-focus">
                                     <!-- Ikona kalendarza -->
                                     <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 
-
-0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                     </svg>
                                 </div>
                                 <p id="data_error" class="mt-2 text-sm text-red-600 flex items-center opacity-0 transition-opacity duration-500" role="alert">
@@ -225,9 +223,7 @@
             }
 
             // Walidacja daty
-            const dzisiaj = new Date().
-
-toISOString().split('T')[0];
+            const dzisiaj = new Date().toISOString().split('T')[0];
             if (data.value < dzisiaj) {
                 const error = document.getElementById('data_error');
                 error.textContent = 'Data nie może być z przeszłości';
@@ -396,9 +392,7 @@ toISOString().split('T')[0];
             icon.setAttribute('viewBox', '0 0 24 24');
             icon.setAttribute('stroke', 'currentColor');
             if (type === 'success') {
-                icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin
-
-="round" stroke-width="2" d="M5 13l4 4L19 7" />`;
+                icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />`;
             } else {
                 icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />`;
             }
