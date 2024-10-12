@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#541388">
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <title>Dzienniczek Spotkań</title>
+
+    <!-- PWA Icon -->
+    <link rel="icon" href="assets/icons/icon-192x192.png" sizes="192x192" type="image/png">
+    <link rel="apple-touch-icon" href="assets/icons/icon-512x512.png">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="h-full">
+    <div class="min-h-full">
+        <nav class="bg-space_cadet-700">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div class="flex h-16 items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <img class="h-8 w-8" src="assets/icons/icon-192x192.png" alt="Dzienniczek Logo">
+                        </div>
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <a href="#" class="bg-indigo-900 text-white rounded-md px-3 py-2 text-sm font-medium">Zarządzanie Spotkaniami</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Nagłówek -->
+        <header class="bg-gradient-to-r from-indigo-500 to-indigo-600 shadow">
+            <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+                <h1 class="text-3xl font-bold tracking-tight text-white">Dzienniczek Spotkań</h1>
+            </div>
+        </header>
+
+        <!-- Główna zawartość -->
+        <main>
+            <div class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
+                <div class="px-4 py-6 sm:px-0">
+                    <div class="rounded-lg border-4 border-dashed border-gray-200 p-4 sm:p-6 lg:p-8">
+                        <form id="form-spotkanie" class="space-y-6">
+                            <h2 class="text-xl font-semibold text-gray-900">Dodaj lub Edytuj Spotkanie</h2>
+                            <input type="hidden" id="id" value="">
+                            
+                            <!-- Imię i nazwisko -->
+                            <div>
+                                <label for="imie_nazwisko" class="block text-sm font-medium text-gray-900">Imię i nazwisko:</label>
+                                <input type="text" id="imie_nazwisko" required class="input-field" placeholder="Wprowadź imię i nazwisko">
+                            </div>
+
+                            <!-- Data -->
+                            <div>
+                                <label for="data" class="block text-sm font-medium text-gray-900">Data:</label>
+                                <input type="date" id="data" required class="input-field">
+                            </div>
+
+                            <!-- Godzina -->
+                            <div>
+                                <label for="godzina" class="block text-sm font-medium text-gray-900">Godzina:</label>
+                                <input type="time" id="godzina" required class="input-field">
+                            </div>
+
+                            <!-- Sprawa -->
+                            <div>
+                                <label for="sprawa" class="block text-sm font-medium text-gray-900">W jakiej sprawie:</label>
+                                <textarea id="sprawa" required class="input-field" placeholder="Opisz sprawę"></textarea>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div>
+                                <button type="submit" id="submit-btn" class="button-gradient">Dodaj spotkanie</button>
+                            </div>
+                        </form>
+
+                        <!-- Lista spotkań -->
+                        <h2 class="mt-8 text-2xl font-bold">Lista spotkań</h2>
+                        <div id="spotkania" class="mt-4 space-y-4"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Kontener na powiadomienia -->
+    <div id="powiadomienia" class="fixed top-4 right-4 z-50 flex flex-col space-y-2"></div>
+
+    <!-- Service Worker Registration -->
+    <script src="app.js"></script>
+</body>
+</html>

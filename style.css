@@ -1,0 +1,85 @@
+/* Stylowanie formularza */
+.input-field {
+    width: 100%;
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 0.375rem;
+    font-size: 1rem;
+    color: #2e294e;
+    background-color: #f9f6f0;
+    transition: border-color 0.2s;
+}
+
+.input-field:focus {
+    border-color: #ffd400;
+    outline: none;
+}
+
+.button-gradient {
+    background: linear-gradient(to right, #d90368, #fc1a83);
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 0.375rem;
+    transition: background 0.3s;
+}
+
+.button-gradient:hover {
+    background: linear-gradient(to right, #ad0352, #82023e);
+}
+
+.edit-btn, .delete-btn {
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+    margin-top: 0.5rem;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    color: #fff;
+}
+
+.edit-btn {
+    background-color: #ffd400;
+}
+
+.delete-btn {
+    background-color: #d90368;
+}
+
+/* Animowane powiadomienia */
+.notification {
+    padding: 1rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 200px;
+    transition: transform 0.5s, opacity 0.5s;
+    transform: translateX(100%);
+    opacity: 0;
+}
+
+.notification.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.notification.success {
+    background-color: #38a169; /* Zielony - sukces */
+}
+
+.notification.error {
+    background-color: #e53e3e; /* Czerwony - błąd */
+}
+
+.notification button {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    color: #fff;
+    cursor: pointer;
+}
