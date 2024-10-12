@@ -1,622 +1,118 @@
 <!DOCTYPE html>
-<html lang="pl" class="h-full bg-gray-100">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zarządzanie Spotkaniami</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Tailwind Configuration (opcjonalne rozszerzenia) -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        clifford: '#da373d',
-                    },
-                    transitionTimingFunction: {
-                        'in-expo': 'cubic-bezier(0.95, 0.05, 0.795, 0.035)',
-                        'out-expo': 'cubic-bezier(0.19, 1, 0.22, 1)',
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- Import czcionki -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Dodaj Spotkanie</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        /* Modal Styles */
-        .modal {
-            transition: opacity 0.25s ease;
-        }
-        .modal-active {
-            display: block;
+        /* Dodatkowe style CSS */
+        [x-cloak] {
+            display: none;
         }
     </style>
 </head>
-<body class="h-full">
-    <div class="min-h-full flex flex-col">
-        <!-- Nawigacja -->
-        <nav class="bg-gradient-to-r from-indigo-600 to-purple-600">
-            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div class="flex h-16 items-center justify-between">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <img class="h-8 w-8" src="https://tailwindui.com/img/logos/mark.svg?color=white" alt="Your Company">
-                        </div>
-                        <div class="ml-10 flex items-baseline space-x-4">
-                            <a href="#" class="bg-indigo-800 text-white px-3 py-2 rounded-md text-sm font-medium">Zarządzanie Spotkaniami</a>
-                        </div>
-                    </div>
-                    <div class="flex items-center">
-                        <button id="openModal" class="flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition transform hover:scale-105 duration-300">
-                            <!-- Ikona dodawania -->
-                            <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                            </svg>
-                            Dodaj Spotkanie
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </nav>
+<body class="bg-gray-100">
 
-        <!-- Nagłówek -->
-        <header class="bg-white shadow">
-            <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                <h1 class="text-3xl font-bold text-gray-900">Zarządzanie Spotkaniami</h1>
-            </div>
-        </header>
+<div class="container mx-auto p-6">
+    <h1 class="text-2xl font-bold mb-4">Zarządzaj Spotkaniami</h1>
+    
+    <form @submit.prevent="dodajSpotkanie">
+        <div class="mb-4">
+            <label class="block text-sm font-medium leading-6 text-gray-900">Tytuł spotkania</label>
+            <input type="text" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" placeholder="Wprowadź tytuł" required>
+        </div>
 
-        <!-- Główna zawartość -->
-        <main class="flex-grow">
-            <div class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- Filtry -->
-                    <div class="space-y-4">
-                        <input type="text" id="szukaj" placeholder="Szukaj..." class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                        <select id="sortuj" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                            <option value="data">Sortuj po dacie</option>
-                            <option value="imie_nazwisko">Sortuj po imieniu i nazwisku</option>
-                        </select>
-                    </div>
-
-                    <!-- Lista Spotkań -->
-                    <div class="lg:col-span-2">
-                        <h2 class="text-2xl font-semibold text-gray-700 mb-4">Lista Spotkań</h2>
-                        <div id="spotkania" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Spotkania będą dynamicznie dodawane tutaj -->
-                        </div>
-                        <p id="brak_spotkan" class="text-gray-500 mt-4">Brak spotkań do wyświetlenia.</p>
-                    </div>
-                </div>
-            </div>
-        </main>
-
-        <!-- Stopka -->
-        <footer class="bg-gray-800">
-            <div class="mx-auto max-w-7xl py-4 px-4 sm:px-6 lg:px-8">
-                <p class="text-center text-sm text-gray-300">&copy; 2024 Twoja Firma. Wszelkie prawa zastrzeżone.</p>
-            </div>
-        </footer>
-    </div>
-
-    <!-- Powiadomienia -->
-    <div id="powiadomienia" class="fixed top-4 right-4 z-50 flex flex-col space-y-2"></div>
-
-    <!-- Modal Dodawania/Edycji Spotkania -->
-    <div id="modal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
-        <div class="bg-white rounded-lg shadow-lg w-11/12 max-w-md transform transition-all duration-300 scale-95">
-            <div class="flex justify-between items-center p-4 border-b">
-                <h3 class="text-lg font-medium text-gray-900">Dodaj Spotkanie</h3>
-                <button id="closeModal" class="text-gray-400 hover:text-gray-600 focus:outline-none">
-                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+        <div>
+            <label id="listbox-label" class="block text-sm font-medium leading-6 text-gray-900">Przypisany do</label>
+            <input type="text" id="search" placeholder="Wyszukaj..." class="mt-2 w-full p-2 rounded-md border border-gray-300" oninput="filterList()">
+            <div class="relative mt-2">
+                <button type="button" class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm sm:leading-6" aria-haspopup="listbox" aria-expanded="true" aria-labelledby="listbox-label">
+                    <span class="flex items-center">
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" class="h-5 w-5 flex-shrink-0 rounded-full">
+                        <span class="ml-3 block truncate">Tom Cook</span>
+                    </span>
+                    <span class="pointer-events-none absolute inset-y-0 right-0 ml-3 flex items-center pr-2">
+                        <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M10.53 3.47a.75.75 0 0 0-1.06 0L6.22 6.72a.75.75 0 0 0 1.06 1.06L10 5.06l2.72 2.72a.75.75 0 1 0 1.06-1.06l-3.25-3.25Zm-4.31 9.81 3.25 3.25a.75.75 0 0 0 1.06 0l3.25-3.25a.75.75 0 1 0-1.06-1.06L10 14.94l-2.72-2.72a.75.75 0 0 0-1.06 1.06Z" clip-rule="evenodd" />
+                        </svg>
+                    </span>
                 </button>
+
+                <ul class="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm" id="userList" tabindex="-1" role="listbox" aria-labelledby="listbox-label" aria-activedescendant="listbox-option-3">
+                    <li class="relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900" id="listbox-option-0" role="option">
+                        <div class="flex items-center">
+                            <img src="https://images.unsplash.com/photo-1491528323818-fdd1faba62cc?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" class="h-5 w-5 flex-shrink-0 rounded-full">
+                            <span class="ml-3 block truncate font-normal">Wade Cooper</span>
+                        </div>
+                    </li>
+                    <li class="relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900" id="listbox-option-1" role="option">
+                        <div class="flex items-center">
+                            <img src="https://images.unsplash.com/photo-1506833889470-f9d123d5dc27?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" class="h-5 w-5 flex-shrink-0 rounded-full">
+                            <span class="ml-3 block truncate font-normal">Anna Smith</span>
+                        </div>
+                    </li>
+                    <li class="relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900" id="listbox-option-2" role="option">
+                        <div class="flex items-center">
+                            <img src="https://images.unsplash.com/photo-1552013226-1b4c9be8e68f?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" class="h-5 w-5 flex-shrink-0 rounded-full">
+                            <span class="ml-3 block truncate font-normal">John Doe</span>
+                        </div>
+                    </li>
+                    <!-- Możesz dodać więcej elementów... -->
+                </ul>
             </div>
-            <div class="p-4">
-                <form id="form-modal" class="space-y-4">
-                    <input type="hidden" id="modal-id" value="">
-                    
-                    <!-- Imię i Nazwisko -->
-                    <div>
-                        <label for="modal-imie_nazwisko" class="block text-sm font-medium text-gray-700">Imię i nazwisko:</label>
-                        <div class="mt-1 relative">
-                            <input type="text" id="modal-imie_nazwisko" required class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Wprowadź imię i nazwisko">
-                            <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                        </div>
-                        <p id="modal-imie_nazwisko_error" class="mt-1 text-xs text-red-600 hidden">Imię i nazwisko musi mieć co najmniej 3 znaki.</p>
-                    </div>
-                    
-                    <!-- Data -->
-                    <div>
-                        <label for="modal-data" class="block text-sm font-medium text-gray-700">Data:</label>
-                        <div class="mt-1 relative">
-                            <input type="date" id="modal-data" required class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                            <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                        </div>
-                        <p id="modal-data_error" class="mt-1 text-xs text-red-600 hidden">Data nie może być z przeszłości.</p>
-                    </div>
-                    
-                    <!-- Godzina -->
-                    <div>
-                        <label for="modal-godzina" class="block text-sm font-medium text-gray-700">Godzina:</label>
-                        <div class="mt-1 relative">
-                            <input type="time" id="modal-godzina" required class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                            <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <p id="modal-godzina_error" class="mt-1 text-xs text-red-600 hidden">Proszę wybrać godzinę.</p>
-                    </div>
-                    
-                    <!-- Sprawa -->
-                    <div>
-                        <label for="modal-sprawa" class="block text-sm font-medium text-gray-700">W jakiej sprawie:</label>
-                        <div class="mt-1 relative">
-                            <textarea id="modal-sprawa" required class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Opisz sprawę (min. 10 znaków)"></textarea>
-                            <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h10M7 16h10" />
-                            </svg>
-                        </div>
-                        <p id="modal-sprawa_error" class="mt-1 text-xs text-red-600 hidden">Opis sprawy musi mieć co najmniej 10 znaków.</p>
-                    </div>
-                    
-                    <!-- Przycisk Submit -->
-                    <div class="flex justify-end">
-                        <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition transform hover:scale-105 duration-300">
-                            <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                            Zapisz
-                        </button>
-                    </div>
-                </form>
+        </div>
+
+        <button type="submit" class="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700">Dodaj Spotkanie</button>
+    </form>
+
+    <!-- Modal -->
+    <div x-data="{ isModalOpen: false }" x-show="isModalOpen" x-cloak class="fixed z-10 inset-0 overflow-y-auto">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Czy na pewno chcesz dodać spotkanie?</h3>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 sm:ml-3 sm:w-auto sm:text-sm" @click="dodajSpotkanie()">Tak</button>
+                    <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" @click="isModalOpen = false">Anuluj</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Skrypt JavaScript -->
+    <!-- Powiadomienia -->
+    <div x-data="{ notifications: [] }" class="mt-6">
+        <template x-for="notification in notifications" :key="notification.id">
+            <div class="mb-4 p-4 border rounded-md" :class="notification.type === 'success' ? 'bg-green-100 border-green-500 text-green-700' : 'bg-red-100 border-red-500 text-red-700'">
+                <span x-text="notification.message"></span>
+                <button class="float-right text-gray-500" @click="notifications.splice(notifications.indexOf(notification), 1)">X</button>
+            </div>
+        </template>
+    </div>
+
     <script>
-        // Pobranie istniejących spotkań z localStorage lub inicjalizacja pustej tablicy
-        let spotkania = JSON.parse(localStorage.getItem('spotkania')) || [];
-
-        // Pobranie elementów DOM
-        const form = document.getElementById('form-spotkanie');
-        const spotkaniaContainer = document.getElementById('spotkania');
-        const szukajInput = document.getElementById('szukaj');
-        const sortujSelect = document.getElementById('sortuj');
-        const powiadomieniaContainer = document.getElementById('powiadomienia');
-        const openModalBtn = document.getElementById('openModal');
-        const closeModalBtn = document.getElementById('closeModal');
-        const modal = document.getElementById('modal');
-        const formModal = document.getElementById('form-modal');
-
-        // Funkcja walidująca formularz
-        function walidujFormularzModal() {
-            let isValid = true;
-            const imieNazwisko = document.getElementById('modal-imie_nazwisko');
-            const data = document.getElementById('modal-data');
-            const godzina = document.getElementById('modal-godzina');
-            const sprawa = document.getElementById('modal-sprawa');
-
-            // Walidacja imienia i nazwiska
-            if (imieNazwisko.value.trim().length < 3) {
-                document.getElementById('modal-imie_nazwisko_error').classList.remove('hidden');
-                isValid = false;
-            } else {
-                document.getElementById('modal-imie_nazwisko_error').classList.add('hidden');
-            }
-
-            // Walidacja daty
-            const dzisiaj = new Date().toISOString().split('T')[0];
-            if (data.value < dzisiaj) {
-                document.getElementById('modal-data_error').classList.remove('hidden');
-                isValid = false;
-            } else {
-                document.getElementById('modal-data_error').classList.add('hidden');
-            }
-
-            // Walidacja godziny
-            if (!godzina.value) {
-                document.getElementById('modal-godzina_error').classList.remove('hidden');
-                isValid = false;
-            } else {
-                document.getElementById('modal-godzina_error').classList.add('hidden');
-            }
-
-            // Walidacja sprawy
-            if (sprawa.value.trim().length < 10) {
-                document.getElementById('modal-sprawa_error').classList.remove('hidden');
-                isValid = false;
-            } else {
-                document.getElementById('modal-sprawa_error').classList.add('hidden');
-            }
-
-            return isValid;
+        function dodajSpotkanie() {
+            // Logika dodawania spotkania
+            console.log("Dodano spotkanie!");
+            // Przykładowe dodanie powiadomienia
+            notifications.push({ id: Date.now(), message: 'Spotkanie dodane pomyślnie!', type: 'success' });
+            isModalOpen = false;
         }
 
-        // Funkcja dodająca lub aktualizująca spotkanie
-        function dodajLubAktualizujSpotkanieModal(e) {
-            e.preventDefault();
-            if (!walidujFormularzModal()) return;
+        function filterList() {
+            const searchInput = document.getElementById("search").value.toLowerCase();
+            const listItems = document.querySelectorAll("#userList li");
 
-            const id = document.getElementById('modal-id').value;
-            const imieNazwisko = document.getElementById('modal-imie_nazwisko').value;
-            const data = document.getElementById('modal-data').value;
-            const godzina = document.getElementById('modal-godzina').value;
-            const sprawa = document.getElementById('modal-sprawa').value;
-
-            if (id) {
-                // Aktualizacja istniejącego spotkania
-                const index = spotkania.findIndex(s => s.id === id);
-                if (index !== -1) {
-                    spotkania[index] = { id, imieNazwisko, data, godzina, sprawa };
-                }
-            } else {
-                // Dodawanie nowego spotkania
-                const noweSpotkanie = {
-                    id: Date.now().toString(),
-                    imieNazwisko,
-                    data,
-                    godzina,
-                    sprawa
-                };
-                spotkania.push(noweSpotkanie);
-            }
-
-            // Zapisanie do localStorage
-            localStorage.setItem('spotkania', JSON.stringify(spotkania));
-            wyswietlSpotkania();
-            formModal.reset();
-            document.getElementById('modal-id').value = '';
-            document.getElementById('modal-imie_nazwisko_error').classList.add('hidden');
-            document.getElementById('modal-data_error').classList.add('hidden');
-            document.getElementById('modal-godzina_error').classList.add('hidden');
-            document.getElementById('modal-sprawa_error').classList.add('hidden');
-            document.getElementById('submit-btn').textContent = 'Dodaj spotkanie';
-            pokazPowiadomienie('Spotkanie zostało zapisane pomyślnie.', 'success');
-            zamknijModal();
+            listItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(searchInput) ? "" : "none";
+            });
         }
-
-        // Funkcja usuwająca spotkanie
-        function usunSpotkanie(id) {
-            if (confirm('Czy na pewno chcesz usunąć to spotkanie?')) {
-                spotkania = spotkania.filter(spotkanie => spotkanie.id !== id);
-                localStorage.setItem('spotkania', JSON.stringify(spotkania));
-                wyswietlSpotkania();
-                pokazPowiadomienie('Spotkanie zostało usunięte.', 'error');
-            }
-        }
-
-        // Funkcja edytująca spotkanie
-        function edytujSpotkanie(id) {
-            const spotkanie = spotkania.find(s => s.id === id);
-            if (spotkanie) {
-                document.getElementById('modal-id').value = spotkanie.id;
-                document.getElementById('modal-imie_nazwisko').value = spotkanie.imieNazwisko;
-                document.getElementById('modal-data').value = spotkanie.data;
-                document.getElementById('modal-godzina').value = spotkanie.godzina;
-                document.getElementById('modal-sprawa').value = spotkanie.sprawa;
-                document.querySelector('#modal h3').textContent = 'Aktualizuj Spotkanie';
-                document.querySelector('#modal button').innerHTML = `
-                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.536L16.732 3.196z" />
-                    </svg>
-                `;
-                document.getElementById('submit-btn').textContent = 'Aktualizuj';
-                otworzModal();
-            }
-        }
-
-        // Funkcja wyświetlająca listę spotkań
-        function wyswietlSpotkania() {
-            const szukaj = szukajInput.value.toLowerCase();
-            const sortuj = sortujSelect.value;
-            const lista = spotkania
-                .filter(spotkanie => 
-                    spotkanie.imieNazwisko.toLowerCase().includes(szukaj) ||
-                    spotkanie.sprawa.toLowerCase().includes(szukaj)
-                )
-                .sort((a, b) => {
-                    if (sortuj === 'data') {
-                        return new Date(a.data + 'T' + a.godzina) - new Date(b.data + 'T' + b.godzina);
-                    } else {
-                        return a.imieNazwisko.localeCompare(b.imieNazwisko);
-                    }
-                });
-
-            spotkaniaContainer.innerHTML = '';
-            if (lista.length === 0) {
-                document.getElementById('brak_spotkan').classList.remove('hidden');
-            } else {
-                document.getElementById('brak_spotkan').classList.add('hidden');
-                lista.forEach(spotkanie => {
-                    const card = document.createElement('div');
-                    card.className = 'bg-white rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300';
-                    card.innerHTML = `
-                        <div class="p-4">
-                            <h3 class="text-lg font-semibold text-gray-800">${spotkanie.imieNazwisko}</h3>
-                            <p class="text-sm text-gray-600">Data: ${spotkanie.data}, Godzina: ${spotkanie.godzina}</p>
-                            <p class="mt-2 text-gray-700">${spotkanie.sprawa}</p>
-                        </div>
-                        <div class="flex justify-end p-4 space-x-2 border-t">
-                            <button onclick="edytujSpotkanie('${spotkanie.id}')" class="flex items-center px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition transform hover:scale-105 duration-300">
-                                <svg class="w-4 h-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.536L16.732 3.196z" />
-                                </svg>
-                                Edytuj
-                            </button>
-                            <button onclick="usunSpotkanie('${spotkanie.id}')" class="flex items-center px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition transform hover:scale-105 duration-300">
-                                <svg class="w-4 h-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                                Usuń
-                            </button>
-                        </div>
-                    `;
-                    spotkaniaContainer.appendChild(card);
-                });
-            }
-        }
-
-        // Funkcja pokazująca powiadomienie
-        function pokazPowiadomienie(message, type) {
-            const powiadomienie = document.createElement('div');
-            powiadomienie.className = `flex items-center p-4 rounded-lg shadow-lg 
-                ${type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}
-                opacity-0 transform translate-y-2 transition-opacity duration-500`;
-            
-            // Ikona
-            const icon = document.createElement('svg');
-            icon.className = 'w-5 h-5 mr-2';
-            icon.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-            icon.setAttribute('fill', 'none');
-            icon.setAttribute('viewBox', '0 0 24 24');
-            icon.setAttribute('stroke', 'currentColor');
-            if (type === 'success') {
-                icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />`;
-            } else {
-                icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />`;
-            }
-
-            // Tekst
-            const tekst = document.createElement('span');
-            tekst.textContent = message;
-
-            // Dodanie ikony i tekstu do powiadomienia
-            powiadomienie.appendChild(icon);
-            powiadomienie.appendChild(tekst);
-            powiadomieniaContainer.appendChild(powiadomienie);
-
-            // Trigger fade-in i translate
-            setTimeout(() => {
-                powiadomienie.classList.remove('opacity-0', 'translate-y-2');
-            }, 100); // Slight delay to ensure transition
-
-            // Automatyczne usuwanie po 3 sekundach
-            setTimeout(() => {
-                powiadomienie.classList.add('opacity-0', 'translate-y-2');
-                // Usunięcie z DOM po zakończeniu animacji
-                setTimeout(() => {
-                    powiadomienie.remove();
-                }, 500);
-            }, 3000);
-        }
-
-        // Funkcje otwierające i zamykające modal
-        function otworzModal() {
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                modal.classList.add('modal-active');
-                modal.querySelector('div').classList.remove('scale-95');
-                modal.querySelector('div').classList.add('scale-100');
-            }, 10);
-        }
-
-        function zamknijModal() {
-            modal.classList.remove('modal-active');
-            modal.querySelector('div').classList.remove('scale-100');
-            modal.querySelector('div').classList.add('scale-95');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300);
-            document.querySelector('#modal h3').textContent = 'Dodaj Spotkanie';
-            document.querySelector('#modal button').innerHTML = `
-                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            `;
-            document.getElementById('submit-btn').textContent = 'Zapisz';
-            formModal.reset();
-            document.getElementById('modal-id').value = '';
-            document.getElementById('modal-imie_nazwisko_error').classList.add('hidden');
-            document.getElementById('modal-data_error').classList.add('hidden');
-            document.getElementById('modal-godzina_error').classList.add('hidden');
-            document.getElementById('modal-sprawa_error').classList.add('hidden');
-        }
-
-        // Event Listeners
-        openModalBtn.addEventListener('click', () => {
-            document.querySelector('#modal h3').textContent = 'Dodaj Spotkanie';
-            document.querySelector('#modal button').innerHTML = `
-                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            `;
-            document.getElementById('submit-btn').textContent = 'Zapisz';
-            formModal.reset();
-            zamknijModal(); // Ensure modal is reset
-            otworzModal();
-        });
-        closeModalBtn.addEventListener('click', zamknijModal);
-
-        // Kliknięcie poza modalem zamyka go
-        window.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                zamknijModal();
-            }
-        });
-
-        // Obsługa formularza spotkania
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            // Otwórz modal do dodawania spotkania
-            otworzModal();
-        });
-
-        formModal.addEventListener('submit', dodajLubAktualizujSpotkanieModal);
-
-        // Obsługa wyszukiwania i sortowania
-        szukajInput.addEventListener('input', wyswietlSpotkania);
-        sortujSelect.addEventListener('change', wyswietlSpotkania);
-
-        // Funkcja wyświetlająca listę spotkań
-        function wyswietlSpotkania() {
-            const szukaj = szukajInput.value.toLowerCase();
-            const sortuj = sortujSelect.value;
-            const lista = spotkania
-                .filter(spotkanie => 
-                    spotkanie.imieNazwisko.toLowerCase().includes(szukaj) ||
-                    spotkanie.sprawa.toLowerCase().includes(szukaj)
-                )
-                .sort((a, b) => {
-                    if (sortuj === 'data') {
-                        return new Date(a.data + 'T' + a.godzina) - new Date(b.data + 'T' + b.godzina);
-                    } else {
-                        return a.imieNazwisko.localeCompare(b.imieNazwisko);
-                    }
-                });
-
-            spotkaniaContainer.innerHTML = '';
-            if (lista.length === 0) {
-                document.getElementById('brak_spotkan').classList.remove('hidden');
-            } else {
-                document.getElementById('brak_spotkan').classList.add('hidden');
-                lista.forEach(spotkanie => {
-                    const card = document.createElement('div');
-                    card.className = 'bg-white rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300';
-                    card.innerHTML = `
-                        <div class="p-4">
-                            <h3 class="text-lg font-semibold text-gray-800">${spotkanie.imieNazwisko}</h3>
-                            <p class="text-sm text-gray-600">Data: ${spotkanie.data}, Godzina: ${spotkanie.godzina}</p>
-                            <p class="mt-2 text-gray-700">${spotkanie.sprawa}</p>
-                        </div>
-                        <div class="flex justify-end p-4 space-x-2 border-t">
-                            <button onclick="edytujSpotkanie('${spotkanie.id}')" class="flex items-center px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition transform hover:scale-105 duration-300">
-                                <svg class="w-4 h-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.536L16.732 3.196z" />
-                                </svg>
-                                Edytuj
-                            </button>
-                            <button onclick="usunSpotkanie('${spotkanie.id}')" class="flex items-center px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition transform hover:scale-105 duration-300">
-                                <svg class="w-4 h-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                                Usuń
-                            </button>
-                        </div>
-                    `;
-                    spotkaniaContainer.appendChild(card);
-                });
-            }
-        }
-
-        // Funkcja pokazująca powiadomienie
-        function pokazPowiadomienie(message, type) {
-            const powiadomienie = document.createElement('div');
-            powiadomienie.className = `flex items-center p-4 rounded-lg shadow-lg 
-                ${type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}
-                opacity-0 transform translate-y-2 transition-opacity duration-500`;
-            
-            // Ikona
-            const icon = document.createElement('svg');
-            icon.className = 'w-5 h-5 mr-2';
-            icon.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-            icon.setAttribute('fill', 'none');
-            icon.setAttribute('viewBox', '0 0 24 24');
-            icon.setAttribute('stroke', 'currentColor');
-            if (type === 'success') {
-                icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />`;
-            } else {
-                icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />`;
-            }
-
-            // Tekst
-            const tekst = document.createElement('span');
-            tekst.textContent = message;
-
-            // Dodanie ikony i tekstu do powiadomienia
-            powiadomienie.appendChild(icon);
-            powiadomienie.appendChild(tekst);
-            powiadomieniaContainer.appendChild(powiadomienie);
-
-            // Trigger fade-in i translate
-            setTimeout(() => {
-                powiadomienie.classList.remove('opacity-0', 'translate-y-2');
-            }, 100); // Slight delay to ensure transition
-
-            // Automatyczne usuwanie po 3 sekundach
-            setTimeout(() => {
-                powiadomienie.classList.add('opacity-0', 'translate-y-2');
-                // Usunięcie z DOM po zakończeniu animacji
-                setTimeout(() => {
-                    powiadomienie.remove();
-                }, 500);
-            }, 3000);
-        }
-
-        // Funkcje otwierające i zamykające modal
-        function otworzModal() {
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                modal.classList.add('modal-active');
-                modal.querySelector('div').classList.remove('scale-95');
-                modal.querySelector('div').classList.add('scale-100');
-            }, 10);
-        }
-
-        function zamknijModal() {
-            modal.classList.remove('modal-active');
-            modal.querySelector('div').classList.remove('scale-100');
-            modal.querySelector('div').classList.add('scale-95');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300);
-            document.querySelector('#modal h3').textContent = 'Dodaj Spotkanie';
-            document.querySelector('#modal button').innerHTML = `
-                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            `;
-            document.getElementById('submit-btn').textContent = 'Zapisz';
-            formModal.reset();
-            document.getElementById('modal-id').value = '';
-            document.getElementById('modal-imie_nazwisko_error').classList.add('hidden');
-            document.getElementById('modal-data_error').classList.add('hidden');
-            document.getElementById('modal-godzina_error').classList.add('hidden');
-            document.getElementById('modal-sprawa_error').classList.add('hidden');
-        }
-
-        // Kliknięcie poza modalem zamyka go
-        window.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                zamknijModal();
-            }
-        });
-
-        // Inicjalizacja zdarzeń po załadowaniu strony
-        document.addEventListener('DOMContentLoaded', () => {
-            wyswietlSpotkania();
-        });
     </script>
+</div>
+
 </body>
 </html>
