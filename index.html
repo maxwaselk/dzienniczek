@@ -1,120 +1,278 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="pl" class="h-full bg-gray-100">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dodaj Spotkanie</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shadcn/ui/dist/index.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf/notyf.min.css">
-    <script src="https://unpkg.com/lucide-react/dist/lucide-react.umd.min.js"></script>
-    <style>
-        @media (max-width: 640px) {
-            body {
-                font-size: 0.875rem; /* Zmniejszenie rozmiaru czcionki dla urządzeń mobilnych */
+    <title>Zarządzanie Spotkaniami</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+          .content-auto {
+            content-visibility: auto;
+          }
+        }
+    </style>
+    <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: {
+                clifford: '#da373d',
+              }
             }
+          }
         }
-        /* Style ikon Lucide dla Notyf */
-        .notyf__icon {
-            width: 24px;
-            height: 24px;
-            margin-right: 12px;
-        }
-        .lucide {
-            width: 100%;
-            height: 100%;
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-        /* Dodatkowe style dla historii powiadomień */
-        .notification-card {
-            @apply bg-white p-4 rounded-lg shadow-sm flex items-start space-x-4 transition transform hover:scale-105;
-        }
-        .notification-icon {
-            @apply flex-shrink-0 w-6 h-6 text-white rounded-full flex items-center justify-center;
-        }
-        .notification-content {
-            @apply flex-1;
-        }
-        .notification-title {
-            @apply text-sm font-semibold;
-        }
-        .notification-message {
-            @apply text-sm text-gray-700;
-        }
-        .notification-timestamp {
-            @apply text-xs text-gray-500;
-        }
-        /* Style przycisków shadcn/ui */
-        .btn {
-            @apply px-4 py-2 rounded-lg font-semibold text-sm transition duration-200;
-        }
-        .btn-success {
-            @apply bg-green-500 hover:bg-green-600 text-white;
-        }
-        .btn-error {
-            @apply bg-red-500 hover:bg-red-600 text-white;
-        }
-        .btn-info {
-            @apply bg-blue-500 hover:bg-blue-600 text-white;
-        }
-        .btn-secondary {
-            @apply bg-gray-500 hover:bg-gray-600 text-white;
-        }
-        /* Animacje dla powiadomień */
-        .notification-card-enter {
-            @apply opacity-0 transform translate-y-4;
-        }
-        .notification-card-enter-active {
-            @apply opacity-100 transform translate-y-0 transition-opacity transition-transform duration-300;
-        }
-        .notification-card-exit {
-            @apply opacity-100 transform translate-y-0;
-        }
-        .notification-card-exit-active {
-            @apply opacity-0 transform translate-y-4 transition-opacity transition-transform duration-300;
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
         }
     </style>
 </head>
-<body class="bg-gray-100 font-sans">
-    <div class="container mx-auto p-5">
-        <h1 class="text-3xl font-bold mb-5 text-center">Dodaj Spotkanie</h1>
-        
-        <!-- Powiadomienia zostaną obsłużone przez Notyf -->
-        
-        <div id="error-message" class="text-red-500 mb-4 hidden"></div>
-        
-        <form id="meetingForm" class="bg-white p-6 rounded-lg shadow-md">
-            <input type="text" id="name" placeholder="Imię i Nazwisko" required class="block w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-200">
-            <input type="date" id="date" required class="block w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-200">
-            <input type="time" id="time" required class="block w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-200">
-            <input type="text" id="purpose" placeholder="W jakiej sprawie" required class="block w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-200">
-            <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-lg transition duration-200">Dodaj Spotkanie</button>
-        </form>
-        
-        <h2 class="text-2xl font-semibold mt-8 mb-4">Lista Spotkań</h2>
-        <div id="meetingList" class="grid grid-cols-1 gap-4">
-            <!-- Lista spotkań -->
-        </div>
-
-        <h2 class="text-2xl font-semibold mt-8 mb-4">Historia Powiadomień</h2>
-        <div class="flex justify-between items-center mb-2">
-            <div class="space-x-2">
-                <button onclick="filterNotifications('all')" class="btn btn-secondary">Wszystkie</button>
-                <button onclick="filterNotifications('success')" class="btn btn-success">Sukces</button>
-                <button onclick="filterNotifications('error')" class="btn btn-error">Błąd</button>
-                <button onclick="filterNotifications('info')" class="btn btn-info">Informacja</button>
+<body class="h-full">
+    <div class="min-h-full">
+        <nav class="bg-gray-800">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div class="flex h-16 items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <img class="h-8 w-8" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company">
+                        </div>
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <a href="#" class="bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium">Zarządzanie Spotkaniami</a>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <button onclick="clearNotificationHistory()" class="btn btn-error">Wyczyść Historię</button>
-        </div>
-        <div id="notificationHistory" class="bg-white p-4 rounded-lg shadow-md max-h-64 overflow-y-auto space-y-4">
-            <!-- Historia powiadomień -->
-        </div>
+        </nav>
+
+        <header class="bg-white shadow">
+            <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+                <h1 class="text-3xl font-bold tracking-tight text-gray-900">Zarządzanie Spotkaniami</h1>
+            </div>
+        </header>
+
+        <main>
+            <div class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
+                <div class="px-4 py-6 sm:px-0">
+                    <div class="rounded-lg border-4 border-dashed border-gray-200 p-4 sm:p-6 lg:p-8">
+                        <form id="form-spotkanie" class="space-y-6">
+                            <input type="hidden" id="id" value="">
+                            
+                            <div>
+                                <label for="imie_nazwisko" class="block text-sm font-medium leading-6 text-gray-900">Imię i nazwisko:</label>
+                                <div class="mt-2">
+                                    <input type="text" id="imie_nazwisko" required class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                </div>
+                                <p id="imie_nazwisko_error" class="mt-2 text-sm text-red-600"></p>
+                            </div>
+                            
+                            <div>
+                                <label for="data" class="block text-sm font-medium leading-6 text-gray-900">Data:</label>
+                                <div class="mt-2">
+                                    <input type="date" id="data" required class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                </div>
+                                <p id="data_error" class="mt-2 text-sm text-red-600"></p>
+                            </div>
+                            
+                            <div>
+                                <label for="godzina" class="block text-sm font-medium leading-6 text-gray-900">Godzina:</label>
+                                <div class="mt-2">
+                                    <input type="time" id="godzina" required class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                </div>
+                                <p id="godzina_error" class="mt-2 text-sm text-red-600"></p>
+                            </div>
+                            
+                            <div>
+                                <label for="sprawa" class="block text-sm font-medium leading-6 text-gray-900">W jakiej sprawie:</label>
+                                <div class="mt-2">
+                                    <textarea id="sprawa" required class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"></textarea>
+                                </div>
+                                <p id="sprawa_error" class="mt-2 text-sm text-red-600"></p>
+                            </div>
+                            
+                            <div>
+                                <button type="submit" id="submit-btn" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Dodaj spotkanie</button>
+                            </div>
+                        </form>
+                        
+                        <div id="filtrowanie" class="mt-8 space-y-4">
+                            <input type="text" id="szukaj" placeholder="Szukaj..." class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                            <select id="sortuj" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                <option value="data">Sortuj po dacie</option>
+                                <option value="imie_nazwisko">Sortuj po imieniu i nazwisku</option>
+                            </select>
+                        </div>
+
+                        <h2 class="mt-8 text-2xl font-bold">Lista spotkań</h2>
+                        <div id="spotkania" class="mt-4 space-y-4"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/notyf/notyf.min.js"></script>
-    <script src="script.js"></script>
+
+    <div id="powiadomienia" class="fixed top-4 right-4 z-50"></div>
+
+    <script>
+        let spotkania = JSON.parse(localStorage.getItem('spotkania')) || [];
+        const form = document.getElementById('form-spotkanie');
+        const spotkaniaContainer = document.getElementById('spotkania');
+        const szukajInput = document.getElementById('szukaj');
+        const sortujSelect = document.getElementById('sortuj');
+        const powiadomieniaContainer = document.getElementById('powiadomienia');
+
+        function walidujFormularz() {
+            let isValid = true;
+            const imieNazwisko = document.getElementById('imie_nazwisko');
+            const data = document.getElementById('data');
+            const godzina = document.getElementById('godzina');
+            const sprawa = document.getElementById('sprawa');
+
+            // Walidacja imienia i nazwiska
+            if (imieNazwisko.value.trim().length < 3) {
+                document.getElementById('imie_nazwisko_error').textContent = 'Imię i nazwisko musi mieć co najmniej 3 znaki';
+                isValid = false;
+            } else {
+                document.getElementById('imie_nazwisko_error').textContent = '';
+            }
+
+            // Walidacja daty
+            const dzisiaj = new Date().toISOString().split('T')[0];
+            if (data.value < dzisiaj) {
+                document.getElementById('data_error').textContent = 'Data nie może być z przeszłości';
+                isValid = false;
+            } else {
+                document.getElementById('data_error').textContent = '';
+            }
+
+            // Walidacja godziny
+            if (!godzina.value) {
+                document.getElementById('godzina_error').textContent = 'Proszę wybrać godzinę';
+                isValid = false;
+            } else {
+                document.getElementById('godzina_error').textContent = '';
+            }
+
+            // Walidacja sprawy
+            if (sprawa.value.trim().length < 10) {
+                document.getElementById('sprawa_error').textContent = 'Opis sprawy musi mieć co najmniej 10 znaków';
+                isValid = false;
+            } else {
+                document.getElementById('sprawa_error').textContent = '';
+            }
+
+            return isValid;
+        }
+
+        function dodajLubAktualizujSpotkanie(e) {
+            e.preventDefault();
+            if (!walidujFormularz()) return;
+
+            const id = document.getElementById('id').value;
+            const imieNazwisko = document.getElementById('imie_nazwisko').value;
+            const data = document.getElementById('data').value;
+            const godzina = document.getElementById('godzina').value;
+            const sprawa = document.getElementById('sprawa').value;
+            
+            if (id) {
+                // Aktualizacja istniejącego spotkania
+                const index = spotkania.findIndex(s => s.id === id);
+                if (index !== -1) {
+                    spotkania[index] = { id, imieNazwisko, data, godzina, sprawa };
+                }
+            } else {
+                // Dodawanie nowego spotkania
+                const noweSpotkanie = {
+                    id: Date.now().toString(),
+                    imieNazwisko,
+                    data,
+                    godzina,
+                    sprawa
+                };
+                spotkania.push(noweSpotkanie);
+            }
+            
+            localStorage.setItem('spotkania', JSON.stringify(spotkania));
+            wyswietlSpotkania();
+            form.reset();
+            document.getElementById('id').value = '';
+            document.getElementById('submit-btn').textContent = 'Dodaj spotkanie';
+            pokazPowiadomienie('Spotkanie zostało zapisane pomyślnie.', 'success');
+        }
+
+        function usunSpotkanie(id) {
+            if (confirm('Czy na pewno chcesz usunąć to spotkanie?')) {
+                spotkania = spotkania.filter(spotkanie => spotkanie.id !== id);
+                localStorage.setItem('spotkania', JSON.stringify(spotkania));
+                wyswietlSpotkania();
+                pokazPowiadomienie('Spotkanie zostało usunięte.', 'error');
+            }
+        }
+
+        function edytujSpotkanie(id) {
+            const spotkanie = spotkania.find(s => s.id === id);
+            if (spotkanie) {
+                document.getElementById('id').value = spotkanie.id;
+                document.getElementById('imie_nazwisko').value = spotkanie.imieNazwisko;
+                document.getElementById('data').value = spotkanie.data;
+                document.getElementById('godzina').value = spotkanie.godzina;
+                document.getElementById('sprawa').value = spotkanie.sprawa;
+                document.getElementById('submit-btn').textContent = 'Aktualizuj spotkanie';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function wyswietlSpotkania() {
+            let filtrowaneSpotkaniaHtml = spotkania
+                .filter(spotkanie => 
+                    spotkanie.imieNazwisko.toLowerCase().includes(szukajInput.value.toLowerCase()) ||
+                    spotkanie.sprawa.toLowerCase().includes(szukajInput.value.toLowerCase())
+                )
+                .sort((a, b) => {
+                    if (sortujSelect.value === 'data') {
+                        return new Date(a.data + 'T' + a.godzina) - new Date(b.data + 'T' + b.godzina);
+                    } else {
+                        return a.imieNazwisko.localeCompare(b.imieNazwisko);
+                    }
+                })
+                .map(spotkanie => `
+                    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                        <div class="px-4 py-5 sm:px-6">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900">${spotkanie.imieNazwisko}</h3>
+                            <p class="mt-1 max-w-2xl text-sm text-gray-500">Data: ${spotkanie.data}, Godzina: ${spotkanie.godzina}</p>
+                        </div>
+                        <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+                            <p class="text-sm text-gray-900">${spotkanie.sprawa}</p>
+                            <div class="mt-4 flex space-x-3">
+                                <button onclick="edytujSpotkanie('${spotkanie.id}')" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Edytuj</button>
+                                <button onclick="usunSpotkanie('${spotkanie.id}')" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">Usuń</button>
+                            </div>
+                        </div>
+                    </div>
+                `)
+                .join('');
+            spotkaniaContainer.innerHTML = filtrowaneSpotkaniaHtml || '<p class="text-gray-500">Brak spotkań do wyświetlenia.</p>';
+        }
+
+        function pokazPowiadomienie(message, type) {
+            const powiadomienie = document.createElement('div');
+            powiadomienie.className = `mb-4 p-4 rounded ${type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'} shadow`;
+            powiadomienie.textContent = message;
+            powiadomieniaContainer.appendChild(powiadomienie);
+            setTimeout(() => {
+                powiadomienie.remove();
+            }, 3000);
+        }
+
+        // Inicjalizacja zdarzeń po załadowaniu strony
+        document.addEventListener('DOMContentLoaded', () => {
+            form.addEventListener('submit', dodajLubAktualizujSpotkanie);
+            szukajInput.addEventListener('input', wyswietlSpotkania);
+            sortujSelect.addEventListener('change', wyswietlSpotkania);
+            wyswietlSpotkania();
+        });
+    </script>
 </body>
 </html>
