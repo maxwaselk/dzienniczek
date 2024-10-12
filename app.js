@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
+    // Odczytaj spotkania z localStorage lub zainicjalizuj pustą tablicę
     let spotkania = JSON.parse(localStorage.getItem('spotkania')) || [];
     const form = document.getElementById('form-spotkanie');
     const spotkaniaContainer = document.getElementById('spotkania');
@@ -12,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Funkcja wyświetlająca spotkania
     function wyswietlSpotkania() {
+        // Jeśli localStorage nie ma żadnych spotkań, zainicjuj pustą tablicę
         spotkaniaContainer.innerHTML = spotkania.map(spotkanie => `
             <div class="spotkanie-item">
                 <h3>${spotkanie.imieNazwisko}</h3>
@@ -86,6 +88,7 @@ document.addEventListener('DOMContentLoaded', function () {
             dodajPowiadomienie('Spotkanie zostało dodane', 'success');
         }
 
+        // Zapis do localStorage
         localStorage.setItem('spotkania', JSON.stringify(spotkania));
         form.reset();
         idInput.value = '';
@@ -93,10 +96,13 @@ document.addEventListener('DOMContentLoaded', function () {
         wyswietlSpotkania();
     });
 
-// Rejestracja Service Workera z właściwą ścieżką
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/dzienniczek/service-worker.js')
-        .then(registration => console.log('Service Worker zarejestrowany', registration))
-        .catch(error => console.log('Błąd rejestracji Service Workera:', error));
-}
+    // Wyświetlenie spotkań po załadowaniu
+    wyswietlSpotkania();
+
+    // Rejestracja Service Workera
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/dzienniczek/service-worker.js')
+            .then(registration => console.log('Service Worker zarejestrowany', registration))
+            .catch(error => console.log('Błąd rejestracji Service Workera:', error));
+    }
 });
